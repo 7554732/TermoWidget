@@ -11,12 +11,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.BatteryManager;
-import android.os.Build;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+//  Widget for Android displays the temperature of the battery
+//
+//  Plan to add:
+//      config,
+//      status bar,
+//      temperature graphic
 
 public class TermoWidget extends AppWidgetProvider {
 
@@ -28,6 +32,7 @@ public class TermoWidget extends AppWidgetProvider {
 
     public static class CircleWidgetUpdater extends TimerTask {
         private Context m_context;
+        //   Restart MainService to get new temperature
         public void run(){
             m_context.stopService(new Intent(m_context,MainService.class));
             m_context.startService(new Intent(m_context,MainService.class));
@@ -43,6 +48,7 @@ public class TermoWidget extends AppWidgetProvider {
 
         if(circleWidgetUpdater!=null) circleWidgetUpdater.cancel();
 
+        //  run permanently widget update
         circleWidgetUpdater = new CircleWidgetUpdater();
         circleWidgetUpdater.setContext(context);
         timer.schedule(circleWidgetUpdater, DELAY_TIME,UPDATE_TIME);
@@ -64,7 +70,7 @@ public class TermoWidget extends AppWidgetProvider {
         @Override
         public int onStartCommand(Intent intent, int flags, int startId) {
 
-
+            //  register reciver to catch ACTION_BATTERY_CHANGED
             this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
             Log.d(LOG_TAG, "MainService Started");
@@ -85,10 +91,11 @@ public class TermoWidget extends AppWidgetProvider {
     }
 
     enum TermoColor{
+        //  each temperature match color
         HEAT(25, R.color.colorHeat), HOT(20, R.color.colorHot), NORMAL(15, R.color.colorNormal), COOL(10, R.color.colorCool),
         COLD(5, R.color.colorCold), CHILLY(0, R.color.colorChilly), FREEZE(-5, R.color.colorFreeze), FROST(-10, R.color.colorFrost),
-        HFROST(-15, R.color.colorHFrost)
-        ;
+        HFROST(-15, R.color.colorHFrost);
+
         private final int temperature;
         private final  int color;
 
@@ -106,26 +113,35 @@ public class TermoWidget extends AppWidgetProvider {
     static private BroadcastReceiver termoBroadCastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            //  get battery temperature from intent extra
+            int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
+            //  set temperature to widget
+            setTemperature(context,batteryTemper);
+        }
+    };
 
-        int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
-
+    private static void setTemperature(Context context, int batteryTemper){
+        //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
+        //  set temperature string
         widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(batteryTemper)+context.getString(R.string.degree));
 
-
+        // find matched color for temperature
         for (TermoColor termoColor : TermoColor.values())
             if (batteryTemper>termoColor.temperature()){
+                //  set color for widget text
                 widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(termoColor.color()));
                 break;
             }
 
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
+        //  get widget id from context
         ComponentName widgetID = new ComponentName(context,TermoWidget.class);
+        //  get widget menager
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        //  update widget
         appWidgetManager.updateAppWidget(widgetID, widgetView);
         Log.d(LOG_TAG, "updateAppWidget "+widgetID);
-        }
-    };
-
+    }
 }

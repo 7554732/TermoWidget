@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#dedede</color>
+    <color name="colorHeat">#ff4000</color>
+    <color name="colorHot">#ffc400</color>
+    <color name="colorNormal">#8cff00</color>
+    <color name="colorCool">#00ff7b</color>
+    <color name="colorCold">#caf5f0</color>
+    <color name="colorChilly">#00ccff</color>
+    <color name="colorFreeze">#0080ff</color>
+    <color name="colorFrost">#0055ff</color>
+    <color name="colorHFrost">#3c00ff</color>
+</resources>

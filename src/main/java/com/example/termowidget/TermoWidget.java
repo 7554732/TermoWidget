@@ -32,10 +32,10 @@ public class TermoWidget extends AppWidgetProvider {
 
     public static class CircleWidgetUpdater extends TimerTask {
         private Context m_context;
-        //   Restart MainService to get new temperature
+        //   Restart WidgetUpdaterService to get new temperature
         public void run(){
-            m_context.stopService(new Intent(m_context,MainService.class));
-            m_context.startService(new Intent(m_context,MainService.class));
+            m_context.stopService(new Intent(m_context,WidgetUpdaterService.class));
+            m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
         }
         public void setContext(Context context){
             m_context=context;
@@ -58,9 +58,9 @@ public class TermoWidget extends AppWidgetProvider {
 
     }
 
-    static public class MainService extends IntentService{
-        public MainService(){
-            super("TermoWidget$MainService");
+    static public class WidgetUpdaterService extends IntentService{
+        public WidgetUpdaterService(){
+            super("TermoWidget$WidgetUpdaterService");
         }
 
         @Override
@@ -73,7 +73,7 @@ public class TermoWidget extends AppWidgetProvider {
             //  register reciver to catch ACTION_BATTERY_CHANGED
             this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
-            Log.d(LOG_TAG, "MainService Started");
+            Log.d(LOG_TAG, "WidgetUpdaterService Started");
             return super.onStartCommand(intent, flags, startId);
         }
 
@@ -85,7 +85,7 @@ public class TermoWidget extends AppWidgetProvider {
             catch (Exception e){
                 Log.d(LOG_TAG, "termoBroadCastReceiver is not registered yet");
             }
-            Log.d(LOG_TAG, "MainService Destroy");
+            Log.d(LOG_TAG, "WidgetUpdaterService Destroy");
             super.onDestroy();
         }
     }

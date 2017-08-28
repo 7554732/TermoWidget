@@ -10,7 +10,7 @@
         android:supportsRtl="true"
 
         android:theme="@style/AppTheme">
-        <service android:name=".TermoWidget$MainService" />
+        <service android:name=".TermoWidget$WidgetUpdaterService" />
         <receiver
             android:name=".TermoWidget"
             android:icon="@android:drawable/star_big_on"

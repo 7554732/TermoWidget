@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.IntentService;
+import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.BroadcastReceiver;
@@ -12,8 +13,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
+import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
+
+import static java.lang.Thread.sleep;
 
 //  Widget for Android displays the temperature of the battery
 //
@@ -30,17 +35,6 @@ public class TermoWidget extends AppWidgetProvider {
     private static Timer timer = new Timer();
     public static CircleWidgetUpdater circleWidgetUpdater;
 
-    public static class CircleWidgetUpdater extends TimerTask {
-        private Context m_context;
-        //   Restart WidgetUpdaterService to get new temperature
-        public void run(){
-            m_context.stopService(new Intent(m_context,WidgetUpdaterService.class));
-            m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
-        }
-        public void setContext(Context context){
-            m_context=context;
-        }
-    }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -53,9 +47,69 @@ public class TermoWidget extends AppWidgetProvider {
         circleWidgetUpdater.setContext(context);
         timer.schedule(circleWidgetUpdater, DELAY_TIME,UPDATE_TIME);
 
+        //  start MainService to manage TermoWidget
+        context.startService(new Intent(context, MainService.class));
+
 
         Log.d(LOG_TAG, "TermoWidget Updated");
 
+    }
+
+
+    static public class MainService extends Service {
+
+        @Override
+        public void onCreate() {
+            super.onCreate();
+        }
+
+        @Override
+        public int onStartCommand(Intent intent, int flags, int startId) {
+
+            //  register reciver to catch ACTION_SCREEN_ON
+            try {
+                this.unregisterReceiver(screenStateReceiver);
+            }
+            catch (Exception e){
+                this.registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+                Log.d(LOG_TAG, "screenStateReceiver  registered");
+            }
+
+            Log.d(LOG_TAG, "MainService Started");
+
+            return super.onStartCommand(intent, flags, startId);
+        }
+
+        @Override
+        public void onDestroy() {
+            super.onDestroy();
+            Log.d(LOG_TAG, "MainService Destroy");
+        }
+
+        @Override
+        public IBinder onBind(Intent intent) {
+            Log.d(LOG_TAG, "MainService onBind");
+            return null;
+        }
+    }
+
+    static private BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //  run widget update
+            context.startService(new Intent(context,WidgetUpdaterService.class));
+        }
+    };
+
+    public static class CircleWidgetUpdater extends TimerTask {
+        private Context m_context;
+        //   Restart WidgetUpdaterService to get new temperature
+        public void run(){
+            m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
+        }
+        public void setContext(Context context){
+            m_context=context;
+        }
     }
 
     static public class WidgetUpdaterService extends IntentService{

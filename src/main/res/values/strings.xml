@@ -2,5 +2,5 @@
     <string name="app_name">TermoWidget</string>
     <string name="widget_name">Termo Widget</string>
     <string name="degree">°</string>
-    <string name="temperature"> T, °C </string>
+    <string name="temperature">T</string>
 </resources>

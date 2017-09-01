@@ -15,10 +15,8 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
-import android.widget.Toast;
-
-import static java.lang.Thread.sleep;
 
 //  Widget for Android displays the temperature of the battery
 //
@@ -31,7 +29,7 @@ public class TermoWidget extends AppWidgetProvider {
 
     final static String LOG_TAG = "TermoWidget";
     final static int UPDATE_TIME = 10000;
-    final static int DELAY_TIME = 1000;
+    final static int DELAY_TIME = 500;
     private static Timer timer = new Timer();
     public static CircleWidgetUpdater circleWidgetUpdater;
 
@@ -49,7 +47,6 @@ public class TermoWidget extends AppWidgetProvider {
 
         //  start MainService to manage TermoWidget
         context.startService(new Intent(context, MainService.class));
-
 
         Log.d(LOG_TAG, "TermoWidget Updated");
 
@@ -98,6 +95,7 @@ public class TermoWidget extends AppWidgetProvider {
         public void onReceive(Context context, Intent intent) {
             //  run widget update
             context.startService(new Intent(context,WidgetUpdaterService.class));
+//        setTemperature(context,55);
         }
     };
 
@@ -174,6 +172,33 @@ public class TermoWidget extends AppWidgetProvider {
         }
     };
 
+    private static class ViewVisibilityRestorer extends TimerTask {
+        private Context m_context;
+        public void run(){
+            //  get RemoteViews by package name
+            RemoteViews widgetView = new RemoteViews(m_context.getPackageName(), R.layout.widget);
+
+            //  set visible
+            widgetView.setViewVisibility(R.id.tvTemperature, View.VISIBLE);
+
+            //  update widget
+            updateWidget(m_context,widgetView);
+        }
+        public void setContext(Context context){
+            m_context=context;
+        }
+    }
+
+    private static void updateWidget(Context context, RemoteViews widgetView){
+        //  get widget id from context
+        ComponentName widgetID = new ComponentName(context,TermoWidget.class);
+        //  get widget menager
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        //  update widget
+        appWidgetManager.updateAppWidget(widgetID, widgetView);
+        Log.d(LOG_TAG, "updateWidget "+widgetID);
+    }
+
     private static void setTemperature(Context context, int batteryTemper){
         //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
@@ -187,15 +212,18 @@ public class TermoWidget extends AppWidgetProvider {
                 widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(termoColor.color()));
                 break;
             }
+        //  set invisible
+        widgetView.setViewVisibility(R.id.tvTemperature, View.INVISIBLE);
 
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
-        //  get widget id from context
-        ComponentName widgetID = new ComponentName(context,TermoWidget.class);
-        //  get widget menager
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         //  update widget
-        appWidgetManager.updateAppWidget(widgetID, widgetView);
-        Log.d(LOG_TAG, "updateAppWidget "+widgetID);
+        updateWidget(context,widgetView);
+
+        //  widget visibility restore
+        ViewVisibilityRestorer viewVisibilityRestorer = new ViewVisibilityRestorer();
+        viewVisibilityRestorer.setContext(context);
+        timer.schedule(viewVisibilityRestorer, DELAY_TIME);
     }
+
 }

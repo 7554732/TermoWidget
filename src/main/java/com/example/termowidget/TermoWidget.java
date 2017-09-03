@@ -28,12 +28,7 @@ import android.widget.RemoteViews;
 public class TermoWidget extends AppWidgetProvider {
 
     final static String LOG_TAG = "TermoWidget";
-    final static int UPDATE_TIME = 10000;
-    final static int DELAY_TIME = 10;
-    final static int BLINK_DELAY_TIME = 500;
-    private static Timer timer = new Timer();
-    public static CircleWidgetUpdater circleWidgetUpdater;
-
+    public  CircleWidgetUpdater circleWidgetUpdater;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -44,7 +39,8 @@ public class TermoWidget extends AppWidgetProvider {
         //  run permanently widget update
         circleWidgetUpdater = new CircleWidgetUpdater();
         circleWidgetUpdater.setContext(context);
-        timer.schedule(circleWidgetUpdater, DELAY_TIME,UPDATE_TIME);
+        circleWidgetUpdater.timer.schedule(circleWidgetUpdater, circleWidgetUpdater.DELAY_FIRST_TIME, circleWidgetUpdater.UPDATE_TIME);
+
 
         //  start MainService to manage TermoWidget
         context.startService(new Intent(context, MainService.class));
@@ -53,54 +49,13 @@ public class TermoWidget extends AppWidgetProvider {
 
     }
 
+    public class CircleWidgetUpdater extends TimerTask {
 
-    static public class MainService extends Service {
+        final int UPDATE_TIME = 10000;
+        final int DELAY_FIRST_TIME = 10;
 
-        @Override
-        public void onCreate() {
-            super.onCreate();
-        }
+        public   Timer timer = new Timer();
 
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-
-            //  register reciver to catch ACTION_SCREEN_ON
-            try {
-                this.unregisterReceiver(screenStateReceiver);
-            }
-            catch (Exception e){
-                this.registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-                Log.d(LOG_TAG, "screenStateReceiver  registered");
-            }
-
-            Log.d(LOG_TAG, "MainService Started");
-
-            return super.onStartCommand(intent, flags, startId);
-        }
-
-        @Override
-        public void onDestroy() {
-            super.onDestroy();
-            Log.d(LOG_TAG, "MainService Destroy");
-        }
-
-        @Override
-        public IBinder onBind(Intent intent) {
-            Log.d(LOG_TAG, "MainService onBind");
-            return null;
-        }
-    }
-
-    static private BroadcastReceiver screenStateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //  run widget update
-            context.startService(new Intent(context,WidgetUpdaterService.class));
-//        setTemperature(context,55);
-        }
-    };
-
-    public static class CircleWidgetUpdater extends TimerTask {
         private Context m_context;
         //   Restart WidgetUpdaterService to get new temperature
         public void run(){
@@ -111,129 +66,6 @@ public class TermoWidget extends AppWidgetProvider {
         }
     }
 
-    static public class WidgetUpdaterService extends IntentService{
-        public WidgetUpdaterService(){
-            super("TermoWidget$WidgetUpdaterService");
-        }
 
-        @Override
-        protected void onHandleIntent(Intent intent) {
-        }
-
-        @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-
-            //  register reciver to catch ACTION_BATTERY_CHANGED
-            this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-
-            Log.d(LOG_TAG, "WidgetUpdaterService Started");
-            return super.onStartCommand(intent, flags, startId);
-        }
-
-        @Override
-        public void onDestroy() {
-            try {
-                this.unregisterReceiver(termoBroadCastReceiver);
-            }
-            catch (Exception e){
-                Log.d(LOG_TAG, "termoBroadCastReceiver is not registered yet");
-            }
-            Log.d(LOG_TAG, "WidgetUpdaterService Destroy");
-            super.onDestroy();
-        }
-    }
-
-    enum TermoColor{
-        //  each temperature match color
-        HEAT(25, R.color.colorHeat), HOT(20, R.color.colorHot), NORMAL(15, R.color.colorNormal), COOL(10, R.color.colorCool),
-        COLD(5, R.color.colorCold), CHILLY(0, R.color.colorChilly), FREEZE(-5, R.color.colorFreeze), FROST(-10, R.color.colorFrost),
-        HFROST(-15, R.color.colorHFrost);
-
-        private final int temperature;
-        private final  int color;
-
-        TermoColor(int temperature, int color){
-            this.temperature=temperature;
-            this.color=color;
-
-        }
-
-        int temperature(){return temperature;}
-
-        int color(){return color;}
-    }
-
-    static private BroadcastReceiver termoBroadCastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //  get battery temperature from intent extra
-            int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
-            //  set temperature to widget
-            setTemperature(context,batteryTemper);
-        }
-    };
-
-
-    private static class Blinker extends TimerTask {
-        private Context m_context;
-        private int counterExecution = 0;
-        private final int SECOND_EXECUTION = 2;
-        public void run(){
-            //  get RemoteViews by package name
-            RemoteViews widgetView = new RemoteViews(m_context.getPackageName(), R.layout.widget);
-
-            if (++counterExecution >= SECOND_EXECUTION){
-                //  set visible
-                widgetView.setViewVisibility(R.id.tvTemperature, View.VISIBLE);
-                this.cancel();
-            }
-            else{
-                //  set invisible
-                widgetView.setViewVisibility(R.id.tvTemperature, View.INVISIBLE);
-
-            }
-
-            //  update widget
-            updateWidget(m_context,widgetView);
-        }
-        public void setContext(Context context){
-            m_context=context;
-        }
-    }
-
-    private static void updateWidget(Context context, RemoteViews widgetView){
-        //  get widget id from context
-        ComponentName widgetID = new ComponentName(context,TermoWidget.class);
-        //  get widget menager
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        //  update widget
-        appWidgetManager.updateAppWidget(widgetID, widgetView);
-        Log.d(LOG_TAG, "updateWidget "+widgetID);
-    }
-
-    private static void setTemperature(Context context, int batteryTemper){
-        //  get RemoteViews by package name
-        RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
-        //  set temperature string
-        widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(batteryTemper)+context.getString(R.string.degree));
-
-        // find matched color for temperature
-        for (TermoColor termoColor : TermoColor.values())
-            if (batteryTemper>termoColor.temperature()){
-                //  set color for widget text
-                widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(termoColor.color()));
-                break;
-            }
-
-        Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
-
-        //  widget visibility restore
-        Blinker blinker = new Blinker();
-        blinker.setContext(context);
-        timer.schedule(blinker,DELAY_TIME, BLINK_DELAY_TIME);
-
-        //  update widget
-        updateWidget(context,widgetView);
-    }
 
 }

@@ -29,7 +29,8 @@ public class TermoWidget extends AppWidgetProvider {
 
     final static String LOG_TAG = "TermoWidget";
     final static int UPDATE_TIME = 10000;
-    final static int DELAY_TIME = 500;
+    final static int DELAY_TIME = 10;
+    final static int BLINK_DELAY_TIME = 500;
     private static Timer timer = new Timer();
     public static CircleWidgetUpdater circleWidgetUpdater;
 
@@ -172,14 +173,25 @@ public class TermoWidget extends AppWidgetProvider {
         }
     };
 
-    private static class ViewVisibilityRestorer extends TimerTask {
+
+    private static class Blinker extends TimerTask {
         private Context m_context;
+        private int counterExecution = 0;
+        private final int SECOND_EXECUTION = 2;
         public void run(){
             //  get RemoteViews by package name
             RemoteViews widgetView = new RemoteViews(m_context.getPackageName(), R.layout.widget);
 
-            //  set visible
-            widgetView.setViewVisibility(R.id.tvTemperature, View.VISIBLE);
+            if (++counterExecution >= SECOND_EXECUTION){
+                //  set visible
+                widgetView.setViewVisibility(R.id.tvTemperature, View.VISIBLE);
+                this.cancel();
+            }
+            else{
+                //  set invisible
+                widgetView.setViewVisibility(R.id.tvTemperature, View.INVISIBLE);
+
+            }
 
             //  update widget
             updateWidget(m_context,widgetView);
@@ -212,18 +224,16 @@ public class TermoWidget extends AppWidgetProvider {
                 widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(termoColor.color()));
                 break;
             }
-        //  set invisible
-        widgetView.setViewVisibility(R.id.tvTemperature, View.INVISIBLE);
 
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
+        //  widget visibility restore
+        Blinker blinker = new Blinker();
+        blinker.setContext(context);
+        timer.schedule(blinker,DELAY_TIME, BLINK_DELAY_TIME);
+
         //  update widget
         updateWidget(context,widgetView);
-
-        //  widget visibility restore
-        ViewVisibilityRestorer viewVisibilityRestorer = new ViewVisibilityRestorer();
-        viewVisibilityRestorer.setContext(context);
-        timer.schedule(viewVisibilityRestorer, DELAY_TIME);
     }
 
 }

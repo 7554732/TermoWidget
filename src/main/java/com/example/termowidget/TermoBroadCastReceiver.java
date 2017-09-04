@@ -42,8 +42,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
         //  widget visibility restore
-        Blinker blinker = new Blinker();
-        blinker.schedule(context);
+        Blinker blinker = new Blinker(context);
+        blinker.schedule();
 
         //  update widget
         updateWidget(context,widgetView);
@@ -86,8 +86,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         private int counterExecution = 0;
         final private  int SECOND_EXECUTION = 2;
 
-        private int DELAY_FIRST_TIME;
-        private int BLINK_DELAY_TIME;
+        final private int DELAY_FIRST_TIME;
+        final private int BLINK_DELAY_TIME;
 
         private Timer timer = new Timer();
 
@@ -110,21 +110,14 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             updateWidget(m_context,widgetView);
         }
 
-        //  initialize local variable
-        private void setContext(Context context){
+        public Blinker(Context context){
             m_context=context;
-        }
-
-        //  get variables from resources
-        private void getResources(){
             DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
             BLINK_DELAY_TIME = m_context.getResources().getInteger(R.integer.BLINK_DELAY_TIME);
         }
 
-        //  schedule itself using local variables
-        public void schedule(Context context){
-            setContext(context);
-            getResources();
+        //  schedule itself using local constants
+        public void schedule(){
             timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
         }
     }

@@ -28,8 +28,8 @@ public class TermoWidget extends AppWidgetProvider {
         if(circleWidgetUpdater!=null) circleWidgetUpdater.cancel();
 
         //  run permanently widget update
-        circleWidgetUpdater = new CircleWidgetUpdater();
-        circleWidgetUpdater.schedule(context);
+        circleWidgetUpdater = new CircleWidgetUpdater(context);
+        circleWidgetUpdater.schedule();
 
 
         //  start MainService to manage TermoWidget
@@ -43,8 +43,8 @@ public class TermoWidget extends AppWidgetProvider {
 
         private Context m_context;
 
-        private int DELAY_FIRST_TIME;
-        private int UPDATE_TIME;
+        final private int DELAY_FIRST_TIME;
+        final private int UPDATE_TIME;
 
         private Timer timer = new Timer();
 
@@ -53,25 +53,15 @@ public class TermoWidget extends AppWidgetProvider {
             m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
         }
 
-        //  initialize local variable
-        private void setContext(Context context){
+        public CircleWidgetUpdater(Context context){
             m_context=context;
-        }
-
-        //  get variables from resources
-        private void getResources(){
-            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
             UPDATE_TIME = m_context.getResources().getInteger(R.integer.UPDATE_TIME);
+            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
         }
 
-        //  schedule itself using local variables
-        public void schedule(Context context){
-            setContext(context);
-            getResources();
+        //  schedule itself using local constants
+        public void schedule(){
             timer.schedule(this, DELAY_FIRST_TIME, UPDATE_TIME);
         }
     }
-
-
-
 }

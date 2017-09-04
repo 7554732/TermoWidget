@@ -3,20 +3,11 @@ package com.example.termowidget;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.IntentService;
-import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
-import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
-import android.widget.RemoteViews;
 
 //  Widget for Android displays the temperature of the battery
 //
@@ -38,8 +29,7 @@ public class TermoWidget extends AppWidgetProvider {
 
         //  run permanently widget update
         circleWidgetUpdater = new CircleWidgetUpdater();
-        circleWidgetUpdater.setContext(context);
-        circleWidgetUpdater.timer.schedule(circleWidgetUpdater, circleWidgetUpdater.DELAY_FIRST_TIME, circleWidgetUpdater.UPDATE_TIME);
+        circleWidgetUpdater.schedule(context);
 
 
         //  start MainService to manage TermoWidget
@@ -49,20 +39,36 @@ public class TermoWidget extends AppWidgetProvider {
 
     }
 
-    public class CircleWidgetUpdater extends TimerTask {
-
-        final int UPDATE_TIME = 10000;
-        final int DELAY_FIRST_TIME = 10;
-
-        public   Timer timer = new Timer();
+    private class CircleWidgetUpdater extends TimerTask {
 
         private Context m_context;
+
+        private int DELAY_FIRST_TIME;
+        private int UPDATE_TIME;
+
+        private Timer timer = new Timer();
+
         //   Restart WidgetUpdaterService to get new temperature
         public void run(){
             m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
         }
-        public void setContext(Context context){
+
+        //  initialize local variable
+        private void setContext(Context context){
             m_context=context;
+        }
+
+        //  get variables from resources
+        private void getResources(){
+            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
+            UPDATE_TIME = m_context.getResources().getInteger(R.integer.UPDATE_TIME);
+        }
+
+        //  schedule itself using local variables
+        public void schedule(Context context){
+            setContext(context);
+            getResources();
+            timer.schedule(this, DELAY_FIRST_TIME, UPDATE_TIME);
         }
     }
 

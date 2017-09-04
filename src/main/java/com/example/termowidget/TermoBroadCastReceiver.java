@@ -43,8 +43,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
         //  widget visibility restore
         Blinker blinker = new Blinker();
-        blinker.setContext(context);
-        blinker.timer.schedule(blinker,blinker.DELAY_FIRST_TIME, blinker.BLINK_DELAY_TIME);
+        blinker.schedule(context);
 
         //  update widget
         updateWidget(context,widgetView);
@@ -82,13 +81,15 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     private class Blinker extends TimerTask {
 
-        final public int DELAY_FIRST_TIME = 10;
-        final public int BLINK_DELAY_TIME = 500;
-        public Timer timer = new Timer();
-
         private Context m_context;
+
         private int counterExecution = 0;
         final private  int SECOND_EXECUTION = 2;
+
+        private int DELAY_FIRST_TIME;
+        private int BLINK_DELAY_TIME;
+
+        private Timer timer = new Timer();
 
         public void run(){
             //  get RemoteViews by package name
@@ -108,8 +109,23 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             //  update widget
             updateWidget(m_context,widgetView);
         }
-        public void setContext(Context context){
+
+        //  initialize local variable
+        private void setContext(Context context){
             m_context=context;
+        }
+
+        //  get variables from resources
+        private void getResources(){
+            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
+            BLINK_DELAY_TIME = m_context.getResources().getInteger(R.integer.BLINK_DELAY_TIME);
+        }
+
+        //  schedule itself using local variables
+        public void schedule(Context context){
+            setContext(context);
+            getResources();
+            timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
         }
     }
 

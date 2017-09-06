@@ -3,4 +3,5 @@
     <string name="widget_name">Termo Widget</string>
     <string name="degree">°</string>
     <string name="temperature">T</string>
+    <string name="status_bar_info">Display Temperature in the Status Bar</string>
 </resources>

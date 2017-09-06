@@ -3,11 +3,14 @@ package com.example.termowidget;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 //  Widget for Android displays the temperature of the battery
 //
@@ -31,9 +34,11 @@ public class TermoWidget extends AppWidgetProvider {
         circleWidgetUpdater = new CircleWidgetUpdater(context);
         circleWidgetUpdater.schedule();
 
-
         //  start MainService to manage TermoWidget
         context.startService(new Intent(context, MainService.class));
+
+        //  set PendingIntent to start ConfigActivity
+        setOnClickPendingIntent(context, appWidgetManager, appWidgetIds);
 
         Log.d(LOG_TAG, "TermoWidget Updated");
 
@@ -63,5 +68,19 @@ public class TermoWidget extends AppWidgetProvider {
         public void schedule(){
             timer.schedule(this, DELAY_FIRST_TIME, UPDATE_TIME);
         }
+    }
+
+    private void  setOnClickPendingIntent(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
+
+        //  create PendingIntent from Intent to start ConfigActivity
+        Intent configIntent = new Intent(context, ConfigActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(context, 0, configIntent, 0);
+
+        //  get RemoteViews by package name
+        RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
+
+        widgetView.setOnClickPendingIntent(R.id.tvTemperature, pIntent);
+        //  update widget
+        appWidgetManager.updateAppWidget(appWidgetIds, widgetView);
     }
 }

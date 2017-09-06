@@ -28,6 +28,9 @@
         <receiver android:name=".ScreenStateReceiver" />
         <receiver android:name=".TermoBroadCastReceiver" />
 
+        <activity
+            android:name="ConfigActivity">
+        </activity>
     </application>
 
 </manifest>

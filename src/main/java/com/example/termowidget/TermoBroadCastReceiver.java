@@ -25,7 +25,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         setTemperature(context,batteryTemper);
     }
 
-    public void setTemperature(Context context, int batteryTemper){
+    private void setTemperature(Context context, int batteryTemper){
         //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
         //  set temperature string
@@ -69,7 +69,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int color(){return color;}
     }
 
-    public void updateWidget(Context context, RemoteViews widgetView){
+    private void updateWidget(Context context, RemoteViews widgetView){
         //  get widget id from context
         ComponentName widgetID = new ComponentName(context,TermoWidget.class);
         //  get widget menager

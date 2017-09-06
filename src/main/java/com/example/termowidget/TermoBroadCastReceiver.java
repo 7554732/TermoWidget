@@ -70,13 +70,13 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     }
 
     private void updateWidget(Context context, RemoteViews widgetView){
-        //  get widget id from context
-        ComponentName widgetID = new ComponentName(context,TermoWidget.class);
+        //  get name of the application component from context
+        ComponentName componentName = new ComponentName(context,TermoWidget.class);
         //  get widget menager
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         //  update widget
-        appWidgetManager.updateAppWidget(widgetID, widgetView);
-        Log.d(LOG_TAG, "updateWidget "+widgetID);
+        appWidgetManager.updateAppWidget(componentName, widgetView);
+        Log.d(LOG_TAG, "updateWidget "+componentName);
     }
 
     private class Blinker extends TimerTask {

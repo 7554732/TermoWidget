@@ -6,7 +6,6 @@ import java.util.TimerTask;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -34,8 +33,8 @@ public class TermoWidget extends AppWidgetProvider {
         circleWidgetUpdater = new CircleWidgetUpdater(context);
         circleWidgetUpdater.schedule();
 
-        //  start MainService to manage TermoWidget
-        context.startService(new Intent(context, MainService.class));
+        //  start ScreenStateService  to catch ACTION_SCREEN_ON
+        context.startService(new Intent(context, ScreenStateService.class));
 
         //  set PendingIntent to start ConfigActivity
         setOnClickPendingIntent(context, appWidgetManager, appWidgetIds);

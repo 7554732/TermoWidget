@@ -6,9 +6,9 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
 
-public class MainService extends Service {
+public class ScreenStateService extends Service {
 
-    final static private String LOG_TAG = "MainService";
+    final static private String LOG_TAG = "ScreenStateService";
     static private ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
 
     @Override
@@ -28,7 +28,7 @@ public class MainService extends Service {
             Log.d(LOG_TAG, "screenStateReceiver  registered");
         }
 
-        Log.d(LOG_TAG, "MainService Started");
+        Log.d(LOG_TAG, "ScreenStateService Started");
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -36,12 +36,12 @@ public class MainService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(LOG_TAG, "MainService Destroy");
+        Log.d(LOG_TAG, "ScreenStateService Destroy");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(LOG_TAG, "MainService onBind");
+        Log.d(LOG_TAG, "ScreenStateService onBind");
         return null;
     }
 }

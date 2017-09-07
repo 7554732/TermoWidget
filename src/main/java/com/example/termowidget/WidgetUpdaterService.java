@@ -33,6 +33,7 @@ public class WidgetUpdaterService extends IntentService{
     public void onDestroy() {
             try {
                 this.unregisterReceiver(termoBroadCastReceiver);
+                Log.d(LOG_TAG, "termoBroadCastReceiver unregistered");
             }
             catch (Exception e){
                 Log.d(LOG_TAG, "termoBroadCastReceiver is not registered yet");

@@ -36,6 +36,13 @@ public class ScreenStateService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        try {
+            this.unregisterReceiver(screenStateReceiver);
+            Log.d(LOG_TAG, "screenStateReceiver unregistered");
+        }
+        catch (Exception e){
+                Log.d(LOG_TAG, "screenStateReceiver is not registered");
+        }
         Log.d(LOG_TAG, "ScreenStateService Destroy");
     }
 

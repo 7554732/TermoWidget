@@ -10,6 +10,5 @@ public class ScreenStateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //  run widget update
         context.startService(new Intent(context,WidgetUpdaterService.class));
-//        setTemperature(context,55);
     }
 }

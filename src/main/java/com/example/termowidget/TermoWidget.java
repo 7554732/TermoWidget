@@ -21,13 +21,21 @@ import android.widget.RemoteViews;
 public class TermoWidget extends AppWidgetProvider {
 
     final static String LOG_TAG = "TermoWidget";
-    public  CircleWidgetUpdater circleWidgetUpdater;
+    static private   CircleWidgetUpdater circleWidgetUpdater;
+
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-        if(circleWidgetUpdater!=null) circleWidgetUpdater.cancel();
+
+        try{
+            circleWidgetUpdater.cancel();
+            Log.d(LOG_TAG, "circleWidgetUpdater canceled");
+        }
+        catch(Exception e){
+            Log.d(LOG_TAG, "circleWidgetUpdater does not exist");
+        }
 
         //  run permanently widget update
         circleWidgetUpdater = new CircleWidgetUpdater(context);
@@ -41,6 +49,23 @@ public class TermoWidget extends AppWidgetProvider {
 
         Log.d(LOG_TAG, "TermoWidget Updated");
 
+    }
+
+    @Override
+    public void onDisabled(Context context) {
+        super.onDisabled(context);
+        //  stop ScreenStateService
+        context.stopService(new Intent(context, ScreenStateService.class));
+        //  stop permanently widget update
+        try{
+            circleWidgetUpdater.cancel();
+            Log.d(LOG_TAG, "circleWidgetUpdater canceled");
+        }
+        catch(Exception e){
+            Log.d(LOG_TAG, "circleWidgetUpdater does not exist");
+        }
+
+        Log.d(LOG_TAG, "TermoWidget Disabled");
     }
 
     private class CircleWidgetUpdater extends TimerTask {

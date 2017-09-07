@@ -9,6 +9,8 @@
         android:id="@+id/status_bar_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:checked="false"
+        android:onClick="onStatusBarChBoxClick"
         android:text="@string/status_bar_info">
 
     </CheckBox>

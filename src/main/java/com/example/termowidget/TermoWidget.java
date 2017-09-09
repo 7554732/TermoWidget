@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -14,7 +15,6 @@ import android.widget.RemoteViews;
 //  Widget for Android displays the temperature of the battery
 //
 //  Plan to add:
-//      config,
 //      status bar,
 //      temperature graphic
 
@@ -44,12 +44,10 @@ public class TermoWidget extends AppWidgetProvider {
         //  start ScreenStateService  to catch ACTION_SCREEN_ON
         context.startService(new Intent(context, ScreenStateService.class));
 
-        //  set PendingIntent to start ConfigActivity
-        setOnClickPendingIntent(context, appWidgetManager, appWidgetIds);
-
         Log.d(LOG_TAG, "TermoWidget Updated");
 
     }
+
 
     @Override
     public void onDisabled(Context context) {
@@ -77,9 +75,16 @@ public class TermoWidget extends AppWidgetProvider {
 
         private Timer timer = new Timer();
 
+        private Boolean isPendingIntentSet =false;
+
         //   Restart WidgetUpdaterService to get new temperature
         public void run(){
             m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
+            //  set PendingIntent to start ConfigActivity at first time CircleWidgetUpdater runned
+            if(isPendingIntentSet==false){
+                setOnClickPendingIntent(m_context);
+                isPendingIntentSet=true;
+            }
         }
 
         public CircleWidgetUpdater(Context context){
@@ -94,17 +99,23 @@ public class TermoWidget extends AppWidgetProvider {
         }
     }
 
-    private void  setOnClickPendingIntent(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds){
+    private void  setOnClickPendingIntent(Context context){
 
         //  create PendingIntent from Intent to start ConfigActivity
         Intent configIntent = new Intent(context, ConfigActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(context, 0, configIntent, 0);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
 
-        widgetView.setOnClickPendingIntent(R.id.tvTemperature, pIntent);
+        widgetView.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
+        //  get widget menager
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         //  update widget
-        appWidgetManager.updateAppWidget(appWidgetIds, widgetView);
+        ComponentName componentName = new ComponentName(context,TermoWidget.class);
+        appWidgetManager.updateAppWidget(componentName, widgetView);
+
+        Log.d(LOG_TAG, "PendingIntent set");
     }
 }

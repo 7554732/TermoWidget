@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="UPDATE_TIME">10000</integer>
-    <integer name="DELAY_FIRST_TIME">10</integer>
+    <integer name="UPDATE_TIME">5000</integer>
+    <integer name="DELAY_FIRST_TIME">500</integer>
     <integer name="BLINK_DELAY_TIME">500</integer>
 </resources>

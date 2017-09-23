@@ -15,7 +15,6 @@ import android.widget.RemoteViews;
 //  Widget for Android displays the temperature of the battery
 //
 //  Plan to add:
-//      status bar,
 //      temperature graphic
 
 public class TermoWidget extends AppWidgetProvider {

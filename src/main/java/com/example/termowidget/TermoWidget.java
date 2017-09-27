@@ -16,6 +16,8 @@ import android.widget.RemoteViews;
 //
 //  Plan to add:
 //      temperature graphic
+//          add data to SQLite ( every 5 min | !< 5 min )
+//          generate Bitmap to show in ImageView
 
 public class TermoWidget extends AppWidgetProvider {
 

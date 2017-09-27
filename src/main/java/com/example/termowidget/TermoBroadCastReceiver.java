@@ -6,8 +6,11 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.BatteryManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -15,15 +18,19 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.R.attr.name;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     final static String LOG_TAG = "TermoBroadCastReceiver";
+    final static Integer DIVISOR_ML_SEC = 1000;
+    private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,6 +38,37 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
         //  set temperature to widget
         setTemperature(context,batteryTemper);
+        addTemperatureToDB(context,batteryTemper);
+    }
+
+    private void addTemperatureToDB(Context context, int batteryTemper) {
+
+        DBHelper dbHelper = new DBHelper(context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        Date date = new Date();
+        Integer curTimeInSec = (int) date.getTime()/DIVISOR_ML_SEC;
+        // query all data from TERMO TABLE
+        Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, null, null, null, null,  DBHelper.ID_TERMO_ROW_NAME +" DESC", "1");
+
+        // set cursor position on the last line
+        // if no one line return false
+        Integer secondsFromLastAddToDB = curTimeInSec;
+        if (cursor.moveToFirst()) {
+            // get time of last addition  batteryTemper to DB
+            Integer lastTimeInSec =  cursor.getColumnIndex(DBHelper.DATE_TERMO_ROW_NAME);
+            secondsFromLastAddToDB = curTimeInSec - lastTimeInSec;
+        }
+        Log.d(LOG_TAG, cursor.toString());
+        cursor.close();
+
+        if (secondsFromLastAddToDB > MIN_PERIOD_ADD_TO_DB ){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DBHelper.DATE_TERMO_ROW_NAME, curTimeInSec);
+            contentValues.put(DBHelper.TEMPERATURE_TERMO_ROW_NAME, batteryTemper);
+            // insert row to DB and receive it ID
+            long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, contentValues);
+        }
     }
 
     private void setTemperature(Context context, int batteryTemper){

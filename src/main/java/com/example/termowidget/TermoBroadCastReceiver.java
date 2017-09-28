@@ -42,51 +42,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         addTemperatureToDB(context,batteryTemper);
     }
 
-    private void addTemperatureToDB(Context context, int batteryTemper) {
-
-        Date date = new Date();
-        Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
-        Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
-
-        Log.d(LOG_TAG, "From Last Add batteryTemper To DB have passed "+ secondsFromLastAddToDB + " seconds");
-
-        if (secondsFromLastAddToDB >= MIN_PERIOD_ADD_TO_DB ){
-            lastTimeAddToDB = curTimeAddToDB;
-
-            //  create data object to insert in DB
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(DBHelper.DATE_TERMO_ROW_NAME, curTimeAddToDB);
-            contentValues.put(DBHelper.TEMPERATURE_TERMO_ROW_NAME, batteryTemper);
-
-            //	insert to DB in separate thread
-            AddToDBThread addToDBThread = new AddToDBThread(context, contentValues);
-            addToDBThread.start();
-
-        }
-    }
-
-    //	insert to DB in separate thread
-    class AddToDBThread extends Thread {
-        private Context m_context;
-        private ContentValues m_contentValues;
-        AddToDBThread(Context context, ContentValues contentValues){
-            m_context = context;
-            m_contentValues = contentValues;
-        }
-        public void run(){
-            //  connect to DB
-            DBHelper dbHelper = new DBHelper(m_context);
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-            // insert row to DB and receive it ID
-            long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, m_contentValues);
-            Log.d(LOG_TAG, "Add To DB " + m_contentValues.toString() );
-
-            //  close connection to DB
-            dbHelper.close();
-        }
-    }
-
     private void setTemperature(Context context, int batteryTemper){
         //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
@@ -267,5 +222,50 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int temperature(){return temperature;}
 
         int icon(){return icon;}
+    }
+
+    private void addTemperatureToDB(Context context, int batteryTemper) {
+
+        Date date = new Date();
+        Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
+        Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
+
+        Log.d(LOG_TAG, "From Last Add batteryTemper To DB have passed "+ secondsFromLastAddToDB + " seconds");
+
+        if (secondsFromLastAddToDB >= MIN_PERIOD_ADD_TO_DB ){
+            lastTimeAddToDB = curTimeAddToDB;
+
+            //  create data object to insert in DB
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(DBHelper.DATE_TERMO_ROW_NAME, curTimeAddToDB);
+            contentValues.put(DBHelper.TEMPERATURE_TERMO_ROW_NAME, batteryTemper);
+
+            //	insert to DB in separate thread
+            AddToDBThread addToDBThread = new AddToDBThread(context, contentValues);
+            addToDBThread.start();
+
+        }
+    }
+
+    //	insert to DB in separate thread
+    class AddToDBThread extends Thread {
+        private Context m_context;
+        private ContentValues m_contentValues;
+        AddToDBThread(Context context, ContentValues contentValues){
+            m_context = context;
+            m_contentValues = contentValues;
+        }
+        public void run(){
+            //  connect to DB
+            DBHelper dbHelper = new DBHelper(m_context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            // insert row to DB and receive it ID
+            long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, m_contentValues);
+            Log.d(LOG_TAG, "Add To DB " + m_contentValues.toString() );
+
+            //  close connection to DB
+            dbHelper.close();
+        }
     }
 }

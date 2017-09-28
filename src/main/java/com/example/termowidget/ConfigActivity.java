@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +30,7 @@ public class ConfigActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
 
-        ImageView iv = (ImageView) findViewById(R.id.imageView);
+        ImageView iv = (ImageView) findViewById(R.id.termo_graphic);
         iv.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
 
         sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
@@ -58,6 +60,44 @@ public class ConfigActivity extends Activity {
         context.startService(new Intent(context,WidgetUpdaterService.class));
     }
 
+    public void onGraphicClick(View view){
+        ReadFromDBThread readFromDBThread = new ReadFromDBThread(this);
+        readFromDBThread.start();
+    }
+
+    class ReadFromDBThread extends Thread {
+        private Context m_context;
+        ReadFromDBThread(Context context){
+            m_context = context;
+        }
+        public void run(){
+            //  connect to DB
+            DBHelper dbHelper = new DBHelper(m_context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            // query all data from TERMO TABLE
+            Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, null, null, null, null, null);
+            Integer idColIndex = cursor.getColumnIndex(DBHelper.ID_TERMO_ROW_NAME);
+            Integer dateColIndex = cursor.getColumnIndex(DBHelper.DATE_TERMO_ROW_NAME);
+            Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
+
+            // set cursor position on the first line
+            // if no one line return false
+            if (cursor.moveToFirst()) {
+                do{
+                    Log.d(LOG_TAG,    DBHelper.ID_TERMO_ROW_NAME + " : " + cursor.getInt(idColIndex) + " "
+                                    + DBHelper.DATE_TERMO_ROW_NAME + " : " + cursor.getInt(dateColIndex) + " "
+                                    + DBHelper.TEMPERATURE_TERMO_ROW_NAME + " : " + cursor.getInt(temperatureColIndex) );
+                }
+                while (cursor.moveToNext());
+            }
+
+            cursor.close();
+
+            //  close connection to DB
+            dbHelper.close();
+        }
+    }
 
     static public Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{
 

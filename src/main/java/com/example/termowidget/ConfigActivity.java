@@ -6,7 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +34,9 @@ public class ConfigActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
 
+        GriphicBitmap griphicBitmap = new GriphicBitmap();
         ImageView iv = (ImageView) findViewById(R.id.termo_graphic);
-        iv.setImageBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+        iv.setImageBitmap(griphicBitmap.create(this, 10));
 
         sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
 
@@ -97,6 +102,30 @@ public class ConfigActivity extends Activity {
             //  close connection to DB
             dbHelper.close();
         }
+    }
+
+    private Bitmap createGriphicBitmap(Integer interval){
+        final Integer MAX_DATA_WIDTH = 290;
+        final Integer MAX_DATA_HEIGHT = 210;
+
+        // check data
+        if ( interval <= 0) return null;
+
+        // open bitmap
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.graphic);
+
+        // create canvas
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setTextSize((float) (canvas.getHeight()*0.07));
+        paint.setColor(Color.BLACK);
+        canvas.drawText("w "+canvas.getWidth()+" h "+canvas.getHeight(), (float)(canvas.getWidth() * 0.07), (float)(canvas.getHeight() * 0.99), paint);
+
+        // get current time and calculate time of graphic begin
+        // get amount of  data from interval in DB
+        // calculate number of data per pixel or number pixel per one data count
+        // get data and draw the rectangles
+        return bitmap;
     }
 
     static public Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{

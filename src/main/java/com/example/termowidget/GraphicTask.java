@@ -10,15 +10,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class GriphicThread extends Thread {
+public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
-    final static String LOG_TAG = "GriphicBitmap";
+    final static String LOG_TAG = "GraphicTask";
 
     private static final Integer BITMAP_ORIGIN_WIDTH = 320;
     private static final Integer BITMAP_ORIGIN_HEIGHT = 240;
@@ -26,24 +27,19 @@ public class GriphicThread extends Thread {
     private static final Integer DATE_ORIGIN_X = 20;
     private static final Integer DATE_ORIGIN_Y = 237;
 
-    private Context m_context;
     private Integer m_interval = 0;
-    private ConfigActivity m_configActivity;
+    private ConfigActivity m_activity;
 
-    public GriphicThread (Context context, Integer interval) {
-        m_context = context;
+    public GraphicTask (ConfigActivity configActivity, Integer interval) {
+        link(configActivity);
         // check data
         if (interval > 0) m_interval = interval;
     }
 
-    public void link(ConfigActivity configActivity){
-        m_configActivity = configActivity;
-    }
-
-    public void run(){
+    protected Bitmap doInBackground(Object[] params) {
 
         // open bitmap
-        final Bitmap bitmap = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.graphic);
+        final Bitmap bitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
 
         // create canvas
         Canvas canvas = new Canvas(bitmap);
@@ -70,7 +66,7 @@ public class GriphicThread extends Thread {
         // get amount of  data from interval in DB
 
         //  connect to DB
-        DBHelper dbHelper = new DBHelper(m_context);
+        DBHelper dbHelper = new DBHelper(m_activity);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         // query all data from TERMO TABLE
@@ -85,12 +81,20 @@ public class GriphicThread extends Thread {
 
         // calculate number of data per pixel or number pixel per one data count
         // get data and draw the rectangles
-        try {
-            m_configActivity.setGraphicBitmap(bitmap);
-        }
-        catch (Exception e){
-            Log.d(LOG_TAG, e.toString());
-        }
+
+        return bitmap;
+    }
+
+    protected void onPostExecute(Bitmap result) {
+        m_activity.setGraphicBitmap(result);
+    }
+
+    public void link(ConfigActivity configActivity){
+        m_activity = configActivity;
+    }
+
+    public void unLink() {
+        m_activity = null;
     }
 
     private class CanvasObject {

@@ -29,6 +29,7 @@ public class ConfigActivity extends Activity {
     private CheckBox statusBarCheckBox;
     public static SharedPreferences sharedPreferences;
     private ImageView graphicViev;
+    private GraphicTask graphicTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,9 +37,16 @@ public class ConfigActivity extends Activity {
         setContentView(R.layout.config);
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
-        GriphicThread griphicThread = new GriphicThread(this, 1000);
-        griphicThread.link(this);
-        griphicThread.start();
+
+        graphicTask = (GraphicTask) getLastNonConfigurationInstance();
+        if (graphicTask == null) {
+            graphicTask = new GraphicTask(this, 1000);
+            graphicTask.execute();
+        }
+        else{
+            // send current Activity in the GraphicTask
+            graphicTask.link(this);
+        }
 
         sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
 
@@ -57,6 +65,12 @@ public class ConfigActivity extends Activity {
         //  set CheckBox value
         statusBarCheckBox.setChecked(statusBar);
 
+    }
+
+    public Object onRetainNonConfigurationInstance() {
+        // remove from GraphicTask link to prior Activity
+        graphicTask.unLink();
+        return graphicTask;
     }
 
     public void onStatusBarChBoxClick(View view){

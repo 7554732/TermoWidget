@@ -1,17 +1,22 @@
 package com.example.termowidget;
 
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.Log;
+import android.widget.ImageView;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class GriphicBitmap {
+public class GriphicThread extends Thread {
 
     final static String LOG_TAG = "GriphicBitmap";
 
@@ -21,12 +26,24 @@ public class GriphicBitmap {
     private static final Integer DATE_ORIGIN_X = 20;
     private static final Integer DATE_ORIGIN_Y = 237;
 
-    Bitmap create(Context context, Integer interval){
+    private Context m_context;
+    private Integer m_interval = 0;
+    private ConfigActivity m_configActivity;
+
+    public GriphicThread (Context context, Integer interval) {
+        m_context = context;
         // check data
-        if ( interval <= 0) return null;
+        if (interval > 0) m_interval = interval;
+    }
+
+    public void link(ConfigActivity configActivity){
+        m_configActivity = configActivity;
+    }
+
+    public void run(){
 
         // open bitmap
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.graphic);
+        final Bitmap bitmap = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.graphic);
 
         // create canvas
         Canvas canvas = new Canvas(bitmap);
@@ -42,17 +59,38 @@ public class GriphicBitmap {
         // get current time and calculate time of graphic begin
         Date curDate = new Date();
         Integer curTime =(int) (curDate.getTime()/TermoBroadCastReceiver.DIVISOR_ML_SEC);
-        Long beginTime = (long) (curTime - interval) * TermoBroadCastReceiver.DIVISOR_ML_SEC;
+        Integer beginTime = curTime - m_interval;
 
         Date beginDate = new Date();
-        beginDate.setTime(beginTime);
-        canvas.drawText(beginDate.toString(), dateText.getX(DATE_ORIGIN_X), dateText.getY(DATE_ORIGIN_Y), paint);
+        beginDate.setTime(beginTime * TermoBroadCastReceiver.DIVISOR_ML_SEC);
+        SimpleDateFormat beginDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String beginDateString = beginDateFormat.format(beginDate);
+        canvas.drawText("From " + beginDateString, dateText.getX(DATE_ORIGIN_X), dateText.getY(DATE_ORIGIN_Y), paint);
 
         // get amount of  data from interval in DB
 
+        //  connect to DB
+        DBHelper dbHelper = new DBHelper(m_context);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // query all data from TERMO TABLE
+        String selection = DBHelper.DATE_TERMO_ROW_NAME + ">" + beginTime;
+        Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, selection, null, null, null, null);
+
+        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + cursor.getCount());
+
+        cursor.close();
+        //  close connection to DB
+        dbHelper.close();
+
         // calculate number of data per pixel or number pixel per one data count
         // get data and draw the rectangles
-        return bitmap;
+        try {
+            m_configActivity.setGraphicBitmap(bitmap);
+        }
+        catch (Exception e){
+            Log.d(LOG_TAG, e.toString());
+        }
     }
 
     private class CanvasObject {

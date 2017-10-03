@@ -28,15 +28,17 @@ public class ConfigActivity extends Activity {
 
     private CheckBox statusBarCheckBox;
     public static SharedPreferences sharedPreferences;
+    private ImageView graphicViev;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
 
-        GriphicBitmap griphicBitmap = new GriphicBitmap();
-        ImageView iv = (ImageView) findViewById(R.id.termo_graphic);
-        iv.setImageBitmap(griphicBitmap.create(this, 10));
+        graphicViev = (ImageView) findViewById(R.id.termo_graphic);
+        GriphicThread griphicThread = new GriphicThread(this, 1000);
+        griphicThread.link(this);
+        griphicThread.start();
 
         sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
 
@@ -68,6 +70,10 @@ public class ConfigActivity extends Activity {
     public void onGraphicClick(View view){
         ReadFromDBThread readFromDBThread = new ReadFromDBThread(this);
         readFromDBThread.start();
+    }
+
+    public void setGraphicBitmap(Bitmap bitmap){
+        graphicViev.setImageBitmap(bitmap);
     }
 
     class ReadFromDBThread extends Thread {
@@ -102,30 +108,6 @@ public class ConfigActivity extends Activity {
             //  close connection to DB
             dbHelper.close();
         }
-    }
-
-    private Bitmap createGriphicBitmap(Integer interval){
-        final Integer MAX_DATA_WIDTH = 290;
-        final Integer MAX_DATA_HEIGHT = 210;
-
-        // check data
-        if ( interval <= 0) return null;
-
-        // open bitmap
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.graphic);
-
-        // create canvas
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setTextSize((float) (canvas.getHeight()*0.07));
-        paint.setColor(Color.BLACK);
-        canvas.drawText("w "+canvas.getWidth()+" h "+canvas.getHeight(), (float)(canvas.getWidth() * 0.07), (float)(canvas.getHeight() * 0.99), paint);
-
-        // get current time and calculate time of graphic begin
-        // get amount of  data from interval in DB
-        // calculate number of data per pixel or number pixel per one data count
-        // get data and draw the rectangles
-        return bitmap;
     }
 
     static public Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{

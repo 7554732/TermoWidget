@@ -25,6 +25,7 @@ public class ConfigActivity extends Activity {
     final static String LOG_TAG = "ConfigActivity";
     final static public String  PREFERENCES_FILE_NAME  = "config";
     public final static String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
+    private static Integer graphicPeriod = 3600;
 
     private CheckBox statusBarCheckBox;
     public static SharedPreferences sharedPreferences;
@@ -40,7 +41,7 @@ public class ConfigActivity extends Activity {
 
         graphicTask = (GraphicTask) getLastNonConfigurationInstance();
         if (graphicTask == null) {
-            graphicTask = new GraphicTask(this, 1000);
+            graphicTask = new GraphicTask(this, graphicPeriod);
             graphicTask.execute();
         }
         else{

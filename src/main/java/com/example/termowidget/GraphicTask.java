@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
@@ -23,9 +24,15 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
     private static final Integer BITMAP_ORIGIN_WIDTH = 320;
     private static final Integer BITMAP_ORIGIN_HEIGHT = 240;
+    private static final Integer GRAPHIC_ORIGIN_WIDTH = 290;
+    private static final Integer GRAPHIC_ORIGIN_HEIGHT = 210;
+    private static final Integer GRAPHIC_ORIGIN_X = 20;
+    private static final Integer GRAPHIC_ORIGIN_Y = 220;
     private static final Integer DATE_ORIGIN_TEXT_SIZE = 16;
     private static final Integer DATE_ORIGIN_X = 20;
     private static final Integer DATE_ORIGIN_Y = 237;
+    private static final Integer GRADUS_ON_GRAPHIC = 70;
+    private static final Integer MIN_GRADUS_ON_GRAPHIC = -30;
 
     private Integer m_interval = 0;
     private ConfigActivity m_activity;
@@ -58,7 +65,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Integer beginTime = curTime - m_interval;
 
         Date beginDate = new Date();
-        beginDate.setTime(beginTime * TermoBroadCastReceiver.DIVISOR_ML_SEC);
+        beginDate.setTime((long)beginTime * TermoBroadCastReceiver.DIVISOR_ML_SEC);
         SimpleDateFormat beginDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String beginDateString = beginDateFormat.format(beginDate);
         canvas.drawText("From " + beginDateString, dateText.getX(DATE_ORIGIN_X), dateText.getY(DATE_ORIGIN_Y), paint);
@@ -73,14 +80,50 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         String selection = DBHelper.DATE_TERMO_ROW_NAME + ">" + beginTime;
         Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, selection, null, null, null, null);
 
-        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + cursor.getCount());
+        Integer numberOfData = cursor.getCount();
+        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + numberOfData);
+
+        Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
+
+        // calculate number of data per pixel or number pixel per one data count
+
+        CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
+        Float graphicWidth = graphic.getWidth(GRAPHIC_ORIGIN_WIDTH);
+        Float graphicHeight = graphic.getHeight(GRAPHIC_ORIGIN_HEIGHT);
+        Float graphicX = graphic.getX(GRAPHIC_ORIGIN_X);
+        Float graphicY = graphic.getY(GRAPHIC_ORIGIN_Y);
+
+        if (numberOfData > graphicWidth){
+            // calculate amount of data per pixel. Round amount to large. Find ratio pixel to rounded number.
+        }
+        else{
+            // calculate ratio graphicWidth to numberOfData
+            Float widthPerData = graphicWidth / numberOfData;
+            Float heightPerGradus = graphicHeight / GRADUS_ON_GRAPHIC;
+            Log.d(LOG_TAG, "Ratio graphicWidth to numberOfData: " + widthPerData
+                    + " graphicX: " + graphicX
+                    + " graphicY: " + graphicY
+                    + " heightPerGradus: " + heightPerGradus);
+            // get data and draw the rectangles
+            if(cursor.moveToFirst()){
+                do{
+                    Integer temperature = cursor.getInt(temperatureColIndex);
+                    RectF rectf = new RectF(graphicX, graphicY - (temperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus, graphicX + widthPerData, graphicY);
+                    paint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(temperature)));
+                    canvas.drawRect(rectf, paint);
+                    graphicX += widthPerData;
+                    Log.d(LOG_TAG, "RectF: " + rectf.toString());
+                }
+                while (cursor.moveToNext());
+
+
+            }
+        }
 
         cursor.close();
         //  close connection to DB
         dbHelper.close();
 
-        // calculate number of data per pixel or number pixel per one data count
-        // get data and draw the rectangles
 
         return bitmap;
     }
@@ -134,6 +177,14 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
         public Float getY(Integer origin_y){
             return getValue(origin_y, m_bitmap_origin_height, canvasHeight);
+        }
+
+        public Float getWidth(Integer origin_width){
+            return getValue(origin_width, m_bitmap_origin_width, canvasWidth);
+        }
+
+        public Float getHeight(Integer origin_height){
+            return getValue(origin_height, m_bitmap_origin_height, canvasHeight);
         }
     }
 }

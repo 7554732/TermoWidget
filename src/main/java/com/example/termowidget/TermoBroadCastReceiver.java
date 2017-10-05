@@ -48,13 +48,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set temperature string
         widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(batteryTemper)+context.getString(R.string.degree));
 
-        // find matched color for temperature
-        for (TermoColor termoColor : TermoColor.values())
-            if (batteryTemper>termoColor.temperature()){
-                //  set color for widget text
-                widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(termoColor.color()));
-                break;
-            }
+        //  set color for widget text
+        widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(batteryTemper)));
 
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
@@ -87,6 +82,16 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int temperature(){return temperature;}
 
         int color(){return color;}
+
+        // find matched color for temperature
+        static int getColor(int batteryTemper) {
+            for (TermoColor termoColor : TermoColor.values()){
+                if (batteryTemper > termoColor.temperature()) {
+                    return termoColor.color();
+                }
+            }
+            return R.color.colorUnknown;
+        }
     }
 
     private void updateWidget(Context context, RemoteViews widgetView){
@@ -170,13 +175,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
                 status_bar_Builder.setSmallIcon(TermoIcon.P51.icon());
             }
             else{
-                for (TermoIcon termoIcon : TermoIcon.values()) {
-                    if (batteryTemper == termoIcon.temperature()) {
-                        //  set icon for status bar
-                        status_bar_Builder.setSmallIcon(termoIcon.icon());
-                        break;
-                    }
-                }
+                status_bar_Builder.setSmallIcon(TermoIcon.getIcon(batteryTemper));
             }
 
             Intent status_bar_Intent = new Intent(context, ConfigActivity.class);
@@ -222,6 +221,16 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int temperature(){return temperature;}
 
         int icon(){return icon;}
+
+        // find matched icon for temperature
+        static int getIcon(int batteryTemper) {
+            for (TermoIcon termoIcon : TermoIcon.values()){
+                if (batteryTemper == termoIcon.temperature()) {
+                    return termoIcon.icon();
+                }
+            }
+            return R.mipmap.ic_launcher;
+        }
     }
 
     private void addTemperatureToDB(Context context, int batteryTemper) {

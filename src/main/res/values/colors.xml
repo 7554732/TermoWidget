@@ -3,6 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#dedede</color>
+    <color name="colorUnknown">#dedede</color>
     <color name="colorHeat">#ff4000</color>
     <color name="colorHot">#ffc400</color>
     <color name="colorNormal">#8cff00</color>

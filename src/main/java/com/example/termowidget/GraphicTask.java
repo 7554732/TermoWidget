@@ -26,7 +26,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
     private static final Integer BITMAP_ORIGIN_HEIGHT = 240;
     private static final Integer GRAPHIC_ORIGIN_WIDTH = 290;
     private static final Integer GRAPHIC_ORIGIN_HEIGHT = 210;
-    private static final Integer GRAPHIC_ORIGIN_X = 20;
+    private static final Integer GRAPHIC_ORIGIN_X = 21;
     private static final Integer GRAPHIC_ORIGIN_Y = 220;
     private static final Integer DATE_ORIGIN_TEXT_SIZE = 16;
     private static final Integer DATE_ORIGIN_X = 20;
@@ -134,16 +134,17 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
                 for (dataCounter = 0; dataCounter < dataPerRect; dataCounter++){
                     temperatureSum += cursor.getInt(temperatureColIndex);
                     if(cursor.moveToNext() == false) {
+                        dataCounter++;
                         break;
                     }
                 }
-                Integer temperature = temperatureSum / (dataCounter + 1);
+                Integer temperature = temperatureSum / dataCounter;
 
                 RectF rectf = new RectF(graphicX + rectCounter * rectWidth, graphicY - (temperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus,
                                         graphicX + (rectCounter + 1) * rectWidth, graphicY);
                 paint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(temperature)));
                 canvas.drawRect(rectf, paint);
-                Log.d(LOG_TAG, "RectF: " + rectf.toString());
+                Log.d(LOG_TAG, "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
             }
         }
 

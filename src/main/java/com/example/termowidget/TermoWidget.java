@@ -15,9 +15,14 @@ import android.widget.RemoteViews;
 //  Widget for Android displays the temperature of the battery
 //
 //  Plan to add:
-//      temperature graphic
-//          add data to SQLite ( every 5 min | !< 5 min )
-//          generate Bitmap to show in ImageView
+//  in ConfigActivity
+//      data time to rectangle
+//      blinking CheckBox
+//      graphic CheckBox
+//      add to DB on screen off CheckBox
+//      change 0 color
+//      remove ReadFromDBThread
+
 
 public class TermoWidget extends AppWidgetProvider {
 

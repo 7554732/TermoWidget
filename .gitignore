@@ -55,3 +55,4 @@ freeline/
 freeline_project_description.json
 *.gradle
 /proguard-rules.pro
+*.psd

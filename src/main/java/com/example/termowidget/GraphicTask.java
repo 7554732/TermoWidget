@@ -81,51 +81,72 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, selection, null, null, null, null);
 
         Integer numberOfData = cursor.getCount();
-        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + numberOfData);
-
-        Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
-
-        // calculate number of data per pixel or number pixel per one data count
+        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + numberOfData );
 
         CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
-        Float graphicWidth = graphic.getWidth(GRAPHIC_ORIGIN_WIDTH);
-        Float graphicHeight = graphic.getHeight(GRAPHIC_ORIGIN_HEIGHT);
-        Float graphicX = graphic.getX(GRAPHIC_ORIGIN_X);
-        Float graphicY = graphic.getY(GRAPHIC_ORIGIN_Y);
 
-        if (numberOfData > graphicWidth){
-            // calculate amount of data per pixel. Round amount to large. Find ratio pixel to rounded number.
-        }
-        else{
-            // calculate ratio graphicWidth to numberOfData
-            Float widthPerData = graphicWidth / numberOfData;
-            Float heightPerGradus = graphicHeight / GRADUS_ON_GRAPHIC;
-            Log.d(LOG_TAG, "Ratio graphicWidth to numberOfData: " + widthPerData
-                    + " graphicX: " + graphicX
-                    + " graphicY: " + graphicY
-                    + " heightPerGradus: " + heightPerGradus);
-            // get data and draw the rectangles
-            if(cursor.moveToFirst()){
-                do{
-                    Integer temperature = cursor.getInt(temperatureColIndex);
-                    RectF rectf = new RectF(graphicX, graphicY - (temperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus, graphicX + widthPerData, graphicY);
-                    paint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(temperature)));
-                    canvas.drawRect(rectf, paint);
-                    graphicX += widthPerData;
-                    Log.d(LOG_TAG, "RectF: " + rectf.toString());
-                }
-                while (cursor.moveToNext());
-
-
-            }
-        }
+        // get data and draw the rectangles
+        drawRects(canvas, graphic, cursor, numberOfData);
 
         cursor.close();
         //  close connection to DB
         dbHelper.close();
 
-
         return bitmap;
+    }
+
+    private void drawRects(Canvas canvas,CanvasObject graphic, Cursor cursor, Integer numberOfData){
+        Float graphicX = graphic.getX(GRAPHIC_ORIGIN_X);
+        Float graphicY = graphic.getY(GRAPHIC_ORIGIN_Y);
+        Float graphicWidth = graphic.getWidth(GRAPHIC_ORIGIN_WIDTH);
+        Float graphicHeight = graphic.getHeight(GRAPHIC_ORIGIN_HEIGHT);
+        Float heightPerGradus = graphicHeight / GRADUS_ON_GRAPHIC;
+
+        Integer numberOfRect;
+        Integer dataPerRect;
+        Float rectWidth;
+
+        if (numberOfData > graphicWidth){
+            // number of rectangles can not be more then number of pixels in the graphic area
+            numberOfRect = (int)(graphicWidth /1);
+        }
+        else{
+            numberOfRect = numberOfData;
+        }
+        // calculate number of data per rectangle
+        dataPerRect = numberOfData / numberOfRect;
+        if( numberOfData % numberOfRect > 0) dataPerRect++;
+        //  calculate  Width of rectangle
+        rectWidth = graphicWidth / numberOfRect;
+
+        Log.d(LOG_TAG, "numberOfRect: " + numberOfRect
+                + " dataPerRect: " + dataPerRect
+                + " rectWidth: " + rectWidth);
+
+        Paint paint = new Paint();
+
+        Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
+
+        if(cursor.moveToFirst()){
+            for(Integer rectCounter = 0; rectCounter < numberOfRect; rectCounter++){
+                Integer temperatureSum=0;
+                Integer dataCounter;
+                for (dataCounter = 0; dataCounter < dataPerRect; dataCounter++){
+                    temperatureSum += cursor.getInt(temperatureColIndex);
+                    if(cursor.moveToNext() == false) {
+                        break;
+                    }
+                }
+                Integer temperature = temperatureSum / (dataCounter + 1);
+
+                RectF rectf = new RectF(graphicX + rectCounter * rectWidth, graphicY - (temperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus,
+                                        graphicX + (rectCounter + 1) * rectWidth, graphicY);
+                paint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(temperature)));
+                canvas.drawRect(rectf, paint);
+                Log.d(LOG_TAG, "RectF: " + rectf.toString());
+            }
+        }
+
     }
 
     protected void onPostExecute(Bitmap result) {

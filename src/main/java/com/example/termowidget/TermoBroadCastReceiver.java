@@ -145,14 +145,14 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         public void schedule(){
             //  get blinking status
             ConfigActivity.sharedPreferences = m_context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
-            Boolean blinking = true;
+            Boolean is_blinking = true;
             try {
-                blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
+                is_blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
             } catch (IOException e) {
                 Log.d(LOG_TAG, e.toString());
             }
             //  if blinking is on schedule timer
-            if(blinking){
+            if(is_blinking){
                 timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
             }
         }
@@ -161,17 +161,17 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     private void setIconToStatusBar(Context context, int batteryTemper){
         ConfigActivity.sharedPreferences = context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
         Boolean statusBar = false;
-        Boolean blinking = true;
+        Boolean is_blinking = true;
         try {
             statusBar = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.STATUS_BAR_PREFERENCES_KEY, false);
-            blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
+            is_blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
         } catch (IOException e) {
             Log.d(LOG_TAG, e.toString());
         }
 
         Integer NOTIFICATION_ID = 1;
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        if(blinking){
+        if(is_blinking){
             mNotifyMgr.cancel(NOTIFICATION_ID);
         }
 

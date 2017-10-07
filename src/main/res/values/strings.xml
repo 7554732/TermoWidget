@@ -4,5 +4,6 @@
     <string name="degree">°</string>
     <string name="temperature">T</string>
     <string name="status_bar_info">Display Temperature in the Status Bar</string>
-    <string name="blinking">Blinking</string>
+    <string name="is_blinking">Blinking</string>
+    <string name="is_graphic">Display Termo Graphic</string>
 </resources>

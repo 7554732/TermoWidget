@@ -17,13 +17,23 @@
     </CheckBox>
 
     <CheckBox
-        android:id="@+id/blinking"
+        android:id="@+id/is_blinking"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
         android:onClick="onBlinkingChBoxClick"
-        android:text="@string/blinking">
+        android:text="@string/is_blinking">
     </CheckBox>
+
+    <CheckBox
+        android:id="@+id/is_graphic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:onClick="onGraphicChBoxClick"
+        android:text="@string/is_graphic">
+    </CheckBox>
+
 
     <ImageView
         android:id="@+id/termo_graphic"

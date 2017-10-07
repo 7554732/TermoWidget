@@ -22,8 +22,6 @@ import java.io.IOException;
 //
 //  Plan to add:
 //  in ConfigActivity
-//      blinking CheckBox
-//      graphic CheckBox
 //      change 0 color
 //      remove ReadFromDBThread
 
@@ -32,11 +30,13 @@ public class ConfigActivity extends Activity {
     final static String LOG_TAG = "ConfigActivity";
     final static public String  PREFERENCES_FILE_NAME  = "config";
     public static final String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
-    public static final String BLINKING_PREFERENCES_KEY = "blinking";
+    public static final String BLINKING_PREFERENCES_KEY = "is_blinking";
+    public static final String GRAPHIC_PREFERENCES_KEY = "is_graphic";
     private static Integer graphicPeriod = 3600;
 
     private CheckBox statusBarCheckBox;
     private CheckBox blinkingCheckBox;
+    private CheckBox graphicCheckBox;
     public static SharedPreferences sharedPreferences;
     private ImageView graphicViev;
     private GraphicTask graphicTask;
@@ -49,12 +49,14 @@ public class ConfigActivity extends Activity {
         sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
 
         Boolean statusBar = false;
-        Boolean blinking = true;
+        Boolean is_blinking = true;
+        Boolean is_graphic = true;
         //  if STATUS_BAR_PREFERENCES_KEY exist in config
-        //  load from config statusBar and blinking values
+        //  load from config statusBar, is_blinking and is_graphic values
         try {
             statusBar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
-            blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
+            is_blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
+            is_graphic = loadPreferences(sharedPreferences, GRAPHIC_PREFERENCES_KEY, true);
         }
         catch (IOException e){
             Log.d(LOG_TAG, e.toString());
@@ -66,23 +68,35 @@ public class ConfigActivity extends Activity {
         statusBarCheckBox.setChecked(statusBar);
 
         //  find blinking CheckBox
-        blinkingCheckBox = (CheckBox) findViewById(R.id.blinking);
+        blinkingCheckBox = (CheckBox) findViewById(R.id.is_blinking);
         //  set CheckBox value
-        blinkingCheckBox.setChecked(blinking);
+        blinkingCheckBox.setChecked(is_blinking);
+
+        //  find graphic CheckBox
+        graphicCheckBox = (CheckBox) findViewById(R.id.is_graphic);
+        //  set CheckBox value
+        graphicCheckBox.setChecked(is_graphic);
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
+        createGraphic(is_graphic);
+    }
 
-        graphicTask = (GraphicTask) getLastNonConfigurationInstance();
-        if (graphicTask == null) {
-            graphicTask = new GraphicTask(this, graphicPeriod);
-            graphicTask.execute();
+    private void createGraphic(Boolean is_graphic) {
+        if(is_graphic){
+            graphicViev.setVisibility (View.VISIBLE);
+            graphicTask = (GraphicTask) getLastNonConfigurationInstance();
+            if (graphicTask == null) {
+                graphicTask = new GraphicTask(this, graphicPeriod);
+                graphicTask.execute();
+            }
+            else{
+                // send current Activity in the GraphicTask
+                graphicTask.link(this);
+            }
         }
         else{
-            // send current Activity in the GraphicTask
-            graphicTask.link(this);
+            graphicViev.setVisibility (View.INVISIBLE);
         }
-
-
     }
 
     public Object onRetainNonConfigurationInstance() {
@@ -100,8 +114,14 @@ public class ConfigActivity extends Activity {
     }
 
     public void onBlinkingChBoxClick(View view){
-        Boolean blinking = blinkingCheckBox.isChecked();
-        savePreferences(sharedPreferences,BLINKING_PREFERENCES_KEY,blinking);
+        Boolean is_blinking = blinkingCheckBox.isChecked();
+        savePreferences(sharedPreferences,BLINKING_PREFERENCES_KEY,is_blinking);
+    }
+
+    public void onGraphicChBoxClick(View view){
+        Boolean is_graphic = graphicCheckBox.isChecked();
+        savePreferences(sharedPreferences,GRAPHIC_PREFERENCES_KEY,is_graphic);
+        createGraphic(is_graphic);
     }
 
     public void onGraphicClick(View view){

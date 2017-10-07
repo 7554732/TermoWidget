@@ -16,10 +16,8 @@ import android.widget.RemoteViews;
 //
 //  Plan to add:
 //  in ConfigActivity
-//      data time to rectangle
 //      blinking CheckBox
 //      graphic CheckBox
-//      add to DB on screen off CheckBox
 //      change 0 color
 //      remove ReadFromDBThread
 

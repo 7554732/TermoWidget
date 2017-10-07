@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -27,10 +28,12 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
     private static final Integer GRAPHIC_ORIGIN_WIDTH = 290;
     private static final Integer GRAPHIC_ORIGIN_HEIGHT = 210;
     private static final Integer GRAPHIC_ORIGIN_X = 21;
-    private static final Integer GRAPHIC_ORIGIN_Y = 220;
-    private static final Integer DATE_ORIGIN_TEXT_SIZE = 16;
+    private static final Integer GRAPHIC_ORIGIN_Y = 219;
+    private static final Integer ORIGIN_TEXT_SIZE = 16;
     private static final Integer DATE_ORIGIN_X = 20;
     private static final Integer DATE_ORIGIN_Y = 237;
+    private static final Integer PATH_DATE_X_OFFSET = 2;
+    private static final Integer PATH_DATE_Y_OFFSET = 2;
     private static final Integer GRADUS_ON_GRAPHIC = 70;
     private static final Integer MIN_GRADUS_ON_GRAPHIC = -30;
 
@@ -53,22 +56,23 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Integer canvasHeight = canvas.getHeight();
         Integer canvasWidth = canvas.getWidth();
 
+        // create CanvasObject to convert object coordinates
         CanvasObject dateText = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
 
-        Paint paint = new Paint();
-        paint.setTextSize(dateText.getSize(DATE_ORIGIN_TEXT_SIZE));
-        paint.setColor(Color.BLACK);
+        //  create Paint for text
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(dateText.getSize(ORIGIN_TEXT_SIZE));
+        textPaint.setColor(Color.BLACK);
 
         // get current time and calculate time of graphic begin
         Date curDate = new Date();
         Integer curTime =(int) (curDate.getTime()/TermoBroadCastReceiver.DIVISOR_ML_SEC);
         Integer beginTime = curTime - m_interval;
 
-        Date beginDate = new Date();
-        beginDate.setTime((long)beginTime * TermoBroadCastReceiver.DIVISOR_ML_SEC);
-        SimpleDateFormat beginDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String beginDateString = beginDateFormat.format(beginDate);
-        canvas.drawText("From " + beginDateString, dateText.getX(DATE_ORIGIN_X), dateText.getY(DATE_ORIGIN_Y), paint);
+        //  convert number of seconds to time string
+        String beginString = timeToString(beginTime,"yyyy-MM-dd HH:mm:ss");
+        //  draw graphic begin time string
+        canvas.drawText("From " + beginString, dateText.getX(DATE_ORIGIN_X), dateText.getY(DATE_ORIGIN_Y), textPaint);
 
         // get amount of  data from interval in DB
 
@@ -83,6 +87,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Integer numberOfData = cursor.getCount();
         Log.d(LOG_TAG, "Amount of  data from interval in DB: " + numberOfData );
 
+        // create CanvasObject to convert object coordinates
         CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
 
         // get data and draw the rectangles
@@ -95,6 +100,14 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         return bitmap;
     }
 
+    private String timeToString(Integer time, String formatStr) {
+        Date date = new Date();
+        date.setTime((long)time * TermoBroadCastReceiver.DIVISOR_ML_SEC);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr);
+        String resString = dateFormat.format(date);
+        return resString;
+    }
+
     private void drawRects(Canvas canvas,CanvasObject graphic, Cursor cursor, Integer numberOfData){
         Float graphicX = graphic.getX(GRAPHIC_ORIGIN_X);
         Float graphicY = graphic.getY(GRAPHIC_ORIGIN_Y);
@@ -103,8 +116,6 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Float heightPerGradus = graphicHeight / GRADUS_ON_GRAPHIC;
 
         Integer numberOfRect;
-        Integer dataPerRect;
-        Float rectWidth;
 
         if (numberOfData > graphicWidth){
             // number of rectangles can not be more then number of pixels in the graphic area
@@ -114,41 +125,78 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
             numberOfRect = numberOfData;
         }
         // calculate number of data per rectangle
-        dataPerRect = numberOfData / numberOfRect;
+        Integer dataPerRect = numberOfData / numberOfRect;
         if( numberOfData % numberOfRect > 0) dataPerRect++;
         //  calculate  Width of rectangle
-        rectWidth = graphicWidth / numberOfRect;
+        Float rectWidth = graphicWidth / numberOfRect;
 
         Log.d(LOG_TAG, "numberOfRect: " + numberOfRect
                 + " dataPerRect: " + dataPerRect
                 + " rectWidth: " + rectWidth);
 
-        Paint paint = new Paint();
+        // create CanvasObject to convert object coordinates
+        CanvasObject timeText = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
 
+        //  create Paint for text
+        Paint textPaint = new Paint();
+        textPaint.setTextSize(timeText.getSize(ORIGIN_TEXT_SIZE));
+        textPaint.setColor(Color.BLACK);
+
+        //  create Paint for rectangles
+        Paint rectPaint = new Paint();
+
+        Integer dateColIndex = cursor.getColumnIndex(DBHelper.DATE_TERMO_ROW_NAME);
         Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
 
         if(cursor.moveToFirst()){
+            //  get data and draw
             for(Integer rectCounter = 0; rectCounter < numberOfRect; rectCounter++){
                 Integer temperatureSum=0;
+                Integer dateSum=0;
                 Integer dataCounter;
+                //  get data for current rectangle
                 for (dataCounter = 0; dataCounter < dataPerRect; dataCounter++){
+                    dateSum += cursor.getInt(dateColIndex);
                     temperatureSum += cursor.getInt(temperatureColIndex);
                     if(cursor.moveToNext() == false) {
                         dataCounter++;
                         break;
                     }
                 }
-                Integer temperature = temperatureSum / dataCounter;
+                //  averaging data if dataPerRect > 1
+                Integer rectTime = dateSum / dataCounter;
+                Integer rectTemperature = temperatureSum / dataCounter;
 
-                RectF rectf = new RectF(graphicX + rectCounter * rectWidth, graphicY - (temperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus,
+                //  create rectangle
+                RectF rectf = new RectF(graphicX + rectCounter * rectWidth, graphicY - (rectTemperature - MIN_GRADUS_ON_GRAPHIC)* heightPerGradus,
                                         graphicX + (rectCounter + 1) * rectWidth, graphicY);
-                paint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(temperature)));
-                canvas.drawRect(rectf, paint);
+                //  set color for rectangle
+                rectPaint.setColor(m_activity.getResources().getColor(TermoBroadCastReceiver.TermoColor.getColor(rectTemperature)));
+                //  draw rectangle
+                canvas.drawRect(rectf, rectPaint);
+                //  create path for time string
+                Path timePath =  createTimePath(graphicX, graphicY, graphicHeight, rectCounter, rectWidth);
+
+                //  convert number of seconds to time string
+                String timeString = timeToString(rectTime,"HH:mm:ss");
+                timeString += " T=" + rectTemperature;
+                //  draw time string
+                canvas.drawTextOnPath(timeString, timePath, 0, 0, textPaint);
+
                 Log.d(LOG_TAG, "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
             }
         }
 
     }
+
+    private Path createTimePath(Float graphicX, Float graphicY, Float graphicHeight, Integer rectCounter, Float rectWidth) {
+        Path path = new Path();
+        path.reset();
+        path.moveTo(graphicX + (rectCounter + 1) * rectWidth - PATH_DATE_X_OFFSET, graphicY - PATH_DATE_Y_OFFSET);
+        path.lineTo(graphicX + (rectCounter + 1) * rectWidth, graphicY - graphicHeight);
+        return path;
+    }
+
 
     protected void onPostExecute(Bitmap result) {
         m_activity.setGraphicBitmap(result);

@@ -13,13 +13,6 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 //  Widget for Android displays the temperature of the battery
-//
-//  Plan to add:
-//  in ConfigActivity
-//      blinking CheckBox
-//      graphic CheckBox
-//      change 0 color
-//      remove ReadFromDBThread
 
 
 public class TermoWidget extends AppWidgetProvider {

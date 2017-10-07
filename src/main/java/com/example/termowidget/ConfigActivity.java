@@ -19,15 +19,24 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 
+//
+//  Plan to add:
+//  in ConfigActivity
+//      blinking CheckBox
+//      graphic CheckBox
+//      change 0 color
+//      remove ReadFromDBThread
 
 public class ConfigActivity extends Activity {
 
     final static String LOG_TAG = "ConfigActivity";
     final static public String  PREFERENCES_FILE_NAME  = "config";
-    public final static String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
+    public static final String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
+    public static final String BLINKING_PREFERENCES_KEY = "blinking";
     private static Integer graphicPeriod = 3600;
 
     private CheckBox statusBarCheckBox;
+    private CheckBox blinkingCheckBox;
     public static SharedPreferences sharedPreferences;
     private ImageView graphicViev;
     private GraphicTask graphicTask;
@@ -36,6 +45,30 @@ public class ConfigActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
+
+        sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
+
+        Boolean statusBar = false;
+        Boolean blinking = true;
+        //  if STATUS_BAR_PREFERENCES_KEY exist in config
+        //  load from config statusBar and blinking values
+        try {
+            statusBar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
+            blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
+        }
+        catch (IOException e){
+            Log.d(LOG_TAG, e.toString());
+        }
+
+        //  find statusBar CheckBox
+        statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);
+        //  set CheckBox value
+        statusBarCheckBox.setChecked(statusBar);
+
+        //  find blinking CheckBox
+        blinkingCheckBox = (CheckBox) findViewById(R.id.blinking);
+        //  set CheckBox value
+        blinkingCheckBox.setChecked(blinking);
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
 
@@ -49,22 +82,6 @@ public class ConfigActivity extends Activity {
             graphicTask.link(this);
         }
 
-        sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
-
-        Boolean statusBar = false;
-        //  if STATUS_BAR_PREFERENCES_KEY exist in config
-        //  load from config statusBar value
-        try {
-            statusBar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
-        }
-        catch (IOException e){
-            Log.d(LOG_TAG, e.toString());
-        }
-
-        //  find statusBar CheckBox
-        statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);
-        //  set CheckBox value
-        statusBarCheckBox.setChecked(statusBar);
 
     }
 
@@ -80,6 +97,11 @@ public class ConfigActivity extends Activity {
         //  run widget update
         Context context = getApplicationContext();
         context.startService(new Intent(context,WidgetUpdaterService.class));
+    }
+
+    public void onBlinkingChBoxClick(View view){
+        Boolean blinking = blinkingCheckBox.isChecked();
+        savePreferences(sharedPreferences,BLINKING_PREFERENCES_KEY,blinking);
     }
 
     public void onGraphicClick(View view){

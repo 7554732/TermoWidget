@@ -53,7 +53,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
         Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
 
-        //  widget visibility restore
+        //  widget blinking
         Blinker blinker = new Blinker(context);
         blinker.schedule();
 
@@ -143,22 +143,37 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
         //  schedule itself using local constants
         public void schedule(){
-            timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
+            //  get blinking status
+            ConfigActivity.sharedPreferences = m_context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
+            Boolean blinking = true;
+            try {
+                blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
+            } catch (IOException e) {
+                Log.d(LOG_TAG, e.toString());
+            }
+            //  if blinking is on schedule timer
+            if(blinking){
+                timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
+            }
         }
     }
 
     private void setIconToStatusBar(Context context, int batteryTemper){
         ConfigActivity.sharedPreferences = context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
         Boolean statusBar = false;
+        Boolean blinking = true;
         try {
             statusBar = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.STATUS_BAR_PREFERENCES_KEY, false);
+            blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
         } catch (IOException e) {
             Log.d(LOG_TAG, e.toString());
         }
 
         Integer NOTIFICATION_ID = 1;
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        mNotifyMgr.cancel(NOTIFICATION_ID);
+        if(blinking){
+            mNotifyMgr.cancel(NOTIFICATION_ID);
+        }
 
         if (statusBar){
 

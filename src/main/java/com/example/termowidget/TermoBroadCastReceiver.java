@@ -250,6 +250,19 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     private void addTemperatureToDB(Context context, int batteryTemper) {
 
+        //  get graphic status
+        ConfigActivity.sharedPreferences = context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
+        Boolean is_graphic = true;
+        try {
+            is_graphic = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
+        } catch (IOException e) {
+            Log.d(LOG_TAG, e.toString());
+        }
+        //  if graphic is off no not add data to DB
+        if(is_graphic == false){
+            return;
+        }
+
         Date date = new Date();
         Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
         Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;

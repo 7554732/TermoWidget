@@ -13,6 +13,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -22,8 +24,8 @@ import java.io.IOException;
 //
 //  Plan to add:
 //  in ConfigActivity
+//      ClearDBThread instead ReadFromDBThread
 //      change 0 color
-//      remove ReadFromDBThread
 
 public class ConfigActivity extends Activity {
 
@@ -79,6 +81,28 @@ public class ConfigActivity extends Activity {
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
         createGraphic(is_graphic);
+        registerForContextMenu(graphicViev);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        if(v.getId() == R.id.termo_graphic){
+            getMenuInflater().inflate(R.menu.graphic_context_menu, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.export_data:
+                break;
+            case R.id.delete_data:
+                break;
+            default:
+                break;
+        }
+        return super.onContextItemSelected(item);
     }
 
     private void createGraphic(Boolean is_graphic) {

@@ -72,16 +72,9 @@ public class TermoWidget extends AppWidgetProvider {
 
         private Timer timer = new Timer();
 
-        private Boolean isPendingIntentSet =false;
-
         //   Restart WidgetUpdaterService to get new temperature
         public void run(){
             m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
-            //  set PendingIntent to start ConfigActivity at first time CircleWidgetUpdater runned
-            if(isPendingIntentSet==false){
-                setOnClickPendingIntent(m_context);
-                isPendingIntentSet=true;
-            }
         }
 
         public CircleWidgetUpdater(Context context){
@@ -96,23 +89,4 @@ public class TermoWidget extends AppWidgetProvider {
         }
     }
 
-    private void  setOnClickPendingIntent(Context context){
-
-        //  create PendingIntent from Intent to start ConfigActivity
-        Intent configIntent = new Intent(context, ConfigActivity.class);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        //  get RemoteViews by package name
-        RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
-
-        widgetView.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
-        //  get widget menager
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        //  update widget
-        ComponentName componentName = new ComponentName(context,TermoWidget.class);
-        appWidgetManager.updateAppWidget(componentName, widgetView);
-
-        Log.d(LOG_TAG, "PendingIntent set");
-    }
 }

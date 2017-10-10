@@ -31,6 +31,7 @@ public class WidgetUpdaterService extends IntentService{
 
         //  register receiver to catch ACTION_BATTERY_CHANGED
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        Log.d(LOG_TAG, "termoBroadCastReceiver registered");
 
         //  set PendingIntent to start ConfigActivity at first time WidgetUpdaterService runned
         if(isPendingIntentSet==false){

@@ -33,8 +33,13 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     private static Integer lastTimeAddToDB = 0; // (seconds)
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
 
+    private QuickSharedPreferences quickSharedPreferences;
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(context);
+
         //  get battery temperature from intent extra
         int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
         //  set temperature to widget
@@ -144,38 +149,22 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  schedule itself using local constants
         public void schedule(){
             //  get blinking status
-            ConfigActivity.sharedPreferences = m_context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
-            Boolean is_blinking = true;
-            try {
-                is_blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
-            } catch (IOException e) {
-                Log.d(LOG_TAG, e.toString());
-            }
             //  if blinking is on schedule timer
-            if(is_blinking){
+            if(quickSharedPreferences.isBlinking()){
                 timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
             }
         }
     }
 
     private void setIconToStatusBar(Context context, int batteryTemper){
-        ConfigActivity.sharedPreferences = context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
-        Boolean statusBar = false;
-        Boolean is_blinking = true;
-        try {
-            statusBar = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.STATUS_BAR_PREFERENCES_KEY, false);
-            is_blinking = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
-        } catch (IOException e) {
-            Log.d(LOG_TAG, e.toString());
-        }
 
         Integer NOTIFICATION_ID = 1;
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        if(is_blinking){
+        if(quickSharedPreferences.isBlinking()){
             mNotifyMgr.cancel(NOTIFICATION_ID);
         }
 
-        if (statusBar){
+        if (quickSharedPreferences.isStatusBar()){
 
             NotificationCompat.Builder status_bar_Builder = new NotificationCompat.Builder(context)
                     .setContentTitle(batteryTemper + " °");
@@ -249,17 +238,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     }
 
     private void addTemperatureToDB(Context context, int batteryTemper) {
-
-        //  get graphic status
-        ConfigActivity.sharedPreferences = context.getSharedPreferences(ConfigActivity.PREFERENCES_FILE_NAME, MODE_PRIVATE);
-        Boolean is_graphic = true;
-        try {
-            is_graphic = ConfigActivity.loadPreferences(ConfigActivity.sharedPreferences,ConfigActivity.BLINKING_PREFERENCES_KEY, true);
-        } catch (IOException e) {
-            Log.d(LOG_TAG, e.toString());
-        }
         //  if graphic is off no not add data to DB
-        if(is_graphic == false){
+        if(quickSharedPreferences.isGraphic() == false){
             return;
         }
 

@@ -3,14 +3,18 @@ package com.example.termowidget;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import static android.content.Context.ALARM_SERVICE;
 
 //  Widget for Android displays the temperature of the battery
 
@@ -18,25 +22,27 @@ import android.widget.RemoteViews;
 public class TermoWidget extends AppWidgetProvider {
 
     final static String LOG_TAG = "TermoWidget";
-    static private   CircleWidgetUpdater circleWidgetUpdater;
 
+
+    final static private int DELAY_FIRST_TIME = 500;
+    final static private int UPDATE_TIME = 5000;
+
+    private static AlarmManager mAlarmManager;
+    public static PendingIntent pIntentWidgetUpdaterService;
+
+    private static QuickSharedPreferences quickSharedPreferences;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(context);
 
-        try{
-            circleWidgetUpdater.cancel();
-            Log.d(LOG_TAG, "circleWidgetUpdater canceled");
-        }
-        catch(Exception e){
-            Log.d(LOG_TAG, "circleWidgetUpdater does not exist");
-        }
+        stopAlarmManager(pIntentWidgetUpdaterService);
 
         //  run permanently widget update
-        circleWidgetUpdater = new CircleWidgetUpdater(context);
-        circleWidgetUpdater.schedule();
+        pIntentWidgetUpdaterService = setAlarmManager(context);
 
         //  start ScreenStateService  to catch ACTION_SCREEN_ON
         context.startService(new Intent(context, ScreenStateService.class));
@@ -45,48 +51,46 @@ public class TermoWidget extends AppWidgetProvider {
 
     }
 
+    public static void stopAlarmManager(PendingIntent pIntent) {
+        if(pIntent != null) {
+            mAlarmManager.cancel(pIntent);
+            Log.d(LOG_TAG, "AlarmManager canceled");
+        }
+    }
+
+    public static PendingIntent setAlarmManager(Context context) {
+        Intent intent = new Intent(context,WidgetUpdaterService.class);
+        PendingIntent pIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mAlarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+        Integer amType;
+        String amTypeString;
+        if(quickSharedPreferences.isGraphic()){
+            amType = AlarmManager.RTC_WAKEUP;
+            amTypeString = "RTC_WAKEUP";
+        }
+        else {
+            amType = AlarmManager.RTC;
+            amTypeString = "RTC";
+        }
+
+        mAlarmManager.setRepeating(amType, System.currentTimeMillis() + DELAY_FIRST_TIME, UPDATE_TIME, pIntent);
+        Log.d(LOG_TAG, "AlarmManager runned. amType: " + amTypeString);
+        return pIntent;
+    }
+
+
 
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
         //  stop ScreenStateService
         context.stopService(new Intent(context, ScreenStateService.class));
-        //  stop permanently widget update
-        try{
-            circleWidgetUpdater.cancel();
-            Log.d(LOG_TAG, "circleWidgetUpdater canceled");
-        }
-        catch(Exception e){
-            Log.d(LOG_TAG, "circleWidgetUpdater does not exist");
+
+        if (pIntentWidgetUpdaterService != null) {
+            stopAlarmManager(pIntentWidgetUpdaterService);
         }
 
         Log.d(LOG_TAG, "TermoWidget Disabled");
     }
-
-    private class CircleWidgetUpdater extends TimerTask {
-
-        private Context m_context;
-
-        final private int DELAY_FIRST_TIME;
-        final private int UPDATE_TIME;
-
-        private Timer timer = new Timer();
-
-        //   Restart WidgetUpdaterService to get new temperature
-        public void run(){
-            m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
-        }
-
-        public CircleWidgetUpdater(Context context){
-            m_context=context;
-            UPDATE_TIME = m_context.getResources().getInteger(R.integer.UPDATE_TIME);
-            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
-        }
-
-        //  schedule itself using local constants
-        public void schedule(){
-            timer.schedule(this, DELAY_FIRST_TIME, UPDATE_TIME);
-        }
-    }
-
 }

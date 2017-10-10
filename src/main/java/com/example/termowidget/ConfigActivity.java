@@ -30,57 +30,42 @@ import java.io.IOException;
 public class ConfigActivity extends Activity {
 
     final static String LOG_TAG = "ConfigActivity";
-    final static public String  PREFERENCES_FILE_NAME  = "config";
-    public static final String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
-    public static final String BLINKING_PREFERENCES_KEY = "is_blinking";
-    public static final String GRAPHIC_PREFERENCES_KEY = "is_graphic";
+
     private static Integer graphicPeriod = 3600;
 
     private CheckBox statusBarCheckBox;
     private CheckBox blinkingCheckBox;
     private CheckBox graphicCheckBox;
-    public static SharedPreferences sharedPreferences;
     private ImageView graphicViev;
     private GraphicTask graphicTask;
+
+    private QuickSharedPreferences quickSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
 
-        sharedPreferences = getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
-
-        Boolean statusBar = false;
-        Boolean is_blinking = true;
-        Boolean is_graphic = true;
-        //  if STATUS_BAR_PREFERENCES_KEY exist in config
-        //  load from config statusBar, is_blinking and is_graphic values
-        try {
-            statusBar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
-            is_blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
-            is_graphic = loadPreferences(sharedPreferences, GRAPHIC_PREFERENCES_KEY, true);
-        }
-        catch (IOException e){
-            Log.d(LOG_TAG, e.toString());
-        }
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(this);
 
         //  find statusBar CheckBox
         statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);
         //  set CheckBox value
-        statusBarCheckBox.setChecked(statusBar);
+        statusBarCheckBox.setChecked(quickSharedPreferences.isStatusBar());
 
         //  find blinking CheckBox
         blinkingCheckBox = (CheckBox) findViewById(R.id.is_blinking);
         //  set CheckBox value
-        blinkingCheckBox.setChecked(is_blinking);
+        blinkingCheckBox.setChecked(quickSharedPreferences.isBlinking());
 
         //  find graphic CheckBox
         graphicCheckBox = (CheckBox) findViewById(R.id.is_graphic);
         //  set CheckBox value
-        graphicCheckBox.setChecked(is_graphic);
+        graphicCheckBox.setChecked(quickSharedPreferences.isGraphic());
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
-        createGraphic(is_graphic);
+        createGraphic(quickSharedPreferences.isGraphic());
         registerForContextMenu(graphicViev);
     }
 
@@ -130,8 +115,8 @@ public class ConfigActivity extends Activity {
     }
 
     public void onStatusBarChBoxClick(View view){
-        Boolean statusBar = statusBarCheckBox.isChecked();
-        savePreferences(sharedPreferences,STATUS_BAR_PREFERENCES_KEY,statusBar);
+        Boolean is_status_bar = statusBarCheckBox.isChecked();
+        quickSharedPreferences.saveBoolean(quickSharedPreferences.STATUS_BAR_PREFERENCES_KEY,is_status_bar);
         //  run widget update
         Context context = getApplicationContext();
         context.startService(new Intent(context,WidgetUpdaterService.class));
@@ -139,13 +124,16 @@ public class ConfigActivity extends Activity {
 
     public void onBlinkingChBoxClick(View view){
         Boolean is_blinking = blinkingCheckBox.isChecked();
-        savePreferences(sharedPreferences,BLINKING_PREFERENCES_KEY,is_blinking);
+        quickSharedPreferences.saveBoolean(quickSharedPreferences.BLINKING_PREFERENCES_KEY,is_blinking);
     }
 
     public void onGraphicChBoxClick(View view){
         Boolean is_graphic = graphicCheckBox.isChecked();
-        savePreferences(sharedPreferences,GRAPHIC_PREFERENCES_KEY,is_graphic);
+        quickSharedPreferences.saveBoolean(quickSharedPreferences.GRAPHIC_PREFERENCES_KEY,is_graphic);
         createGraphic(is_graphic);
+
+        TermoWidget.stopAlarmManager(TermoWidget.pIntentWidgetUpdaterService);
+        TermoWidget.setAlarmManager(this);
     }
 
     public void onGraphicClick(View view){
@@ -189,23 +177,6 @@ public class ConfigActivity extends Activity {
             //  close connection to DB
             dbHelper.close();
         }
-    }
-
-    static public Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{
-
-        //  check preferences key for exist and get it value
-        if (sharedPreferences.contains(key)) {
-            return  sharedPreferences.getBoolean(key, defaultValue);
-        }
-        else{
-            throw new IOException("Preferences Key does not exsist");
-        }
-    }
-
-    static public void savePreferences(SharedPreferences sharedPreferences, String key, Boolean value){
-        SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
-        preferencesEditor.putBoolean(key, value);
-        preferencesEditor.apply();
     }
 
 

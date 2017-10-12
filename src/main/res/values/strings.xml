@@ -8,4 +8,5 @@
     <string name="is_graphic">Display Termo Graphic</string>
     <string name="export_data">Export Data</string>
     <string name="delete_data">Delete Data</string>
+    <string name="file_export">strings have been written to SD: </string>
 </resources>

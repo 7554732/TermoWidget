@@ -100,7 +100,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         return bitmap;
     }
 
-    private String timeToString(Integer time, String formatStr) {
+    public static String timeToString(Integer time, String formatStr) {
         Date date = new Date();
         date.setTime((long)time * TermoBroadCastReceiver.DIVISOR_ML_SEC);
         SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr);

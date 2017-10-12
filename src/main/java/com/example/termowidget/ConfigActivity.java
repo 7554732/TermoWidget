@@ -1,7 +1,10 @@
 package com.example.termowidget;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -35,13 +38,13 @@ import static com.example.termowidget.GraphicTask.timeToString;
 //
 //  Plan to add:
 //  in ConfigActivity
-//      ExportFromDBThread
-//      DeleteFromDBThread
+//      graphicCheckBox after DeleteFromDBThread error
 //      change 0 color
 
 public class ConfigActivity extends Activity {
 
     final static String LOG_TAG = "ConfigActivity";
+    private static final int DIALOG_DELETE_FROM_DB = 1;
 
     private static Integer graphicPeriod = 3600;
 
@@ -82,7 +85,6 @@ public class ConfigActivity extends Activity {
         registerForContextMenu(graphicViev);
 
         handler = new ConfigActivityHandler(this);
-        handler.sendEmptyMessageDelayed(0, 1000);
     }
 
     @Override
@@ -101,12 +103,43 @@ public class ConfigActivity extends Activity {
                 exportFromDBThread.start();
                 break;
             case R.id.delete_data:
+                showDialog(DIALOG_DELETE_FROM_DB);
                 break;
             default:
                 break;
         }
         return super.onContextItemSelected(item);
     }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_DELETE_FROM_DB) {
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+
+            adb.setTitle(R.string.del_data_title);
+            adb.setMessage(R.string.del_data_mes);
+            adb.setIcon(android.R.drawable.ic_dialog_info);
+            adb.setPositiveButton(R.string.yes, myClickListener);
+            adb.setNegativeButton(R.string.no, myClickListener);
+
+            return adb.create();
+        }
+        return super.onCreateDialog(id);
+    }
+
+    DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            switch (which) {
+                case Dialog.BUTTON_POSITIVE:
+                    DeleteFromDBThread deleteFromDBThread = new DeleteFromDBThread(getApplicationContext());
+                    deleteFromDBThread.start();
+                    break;
+                case Dialog.BUTTON_NEGATIVE:
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onDestroy() {
@@ -241,8 +274,9 @@ public class ConfigActivity extends Activity {
             //  send message to createToast
             String msgString =  counterExportedStrings + " " + m_context.getString(R.string.file_export) + " " +  sdFile.getAbsolutePath();
             Message message = handler.obtainMessage();
-            message.obj =
+            message.obj = msgString;
             handler.sendMessage(message);
+
             Log.d(LOG_TAG, msgString);
         }
 
@@ -292,6 +326,34 @@ public class ConfigActivity extends Activity {
                 String message = (String) msg.obj;
                 activity.createToast(message);
             }
+        }
+    }
+
+    private class DeleteFromDBThread extends Thread {
+
+        private Context m_context;
+
+        DeleteFromDBThread(Context context) {
+            m_context = context;
+        }
+        public void run(){
+            //  connect to DB
+            DBHelper dbHelper = new DBHelper(m_context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            // delete all data from TERMO TABLE
+            Integer numberOfDeletedRows  = db.delete(DBHelper.TERMO_TABLE_NAME, null, null);
+
+            //  close connection to DB
+            dbHelper.close();
+
+            //  send message to createToast
+            String msgString = numberOfDeletedRows + " " +  m_context.getString(R.string.data_deleted);
+            Message message = handler.obtainMessage();
+            message.obj = msgString;
+            handler.sendMessage(message);
+
+            Log.d(LOG_TAG, msgString);
         }
     }
 }

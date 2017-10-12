@@ -9,4 +9,9 @@
     <string name="export_data">Export Data</string>
     <string name="delete_data">Delete Data</string>
     <string name="file_export">strings have been written to SD: </string>
+    <string name="del_data_title">Delete Data</string>
+    <string name="del_data_mes">Delete All Data from DB?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="data_deleted">rows deleted from DB</string>
 </resources>

@@ -16,7 +16,7 @@
 
         <receiver
             android:name=".TermoWidget"
-            android:icon="@android:drawable/star_big_on"
+            android:icon="@mipmap/ic_launcher_round"
             android:label="@string/widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

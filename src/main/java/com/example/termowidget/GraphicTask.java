@@ -27,8 +27,8 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
     private static final Integer BITMAP_ORIGIN_HEIGHT = 240;
     private static final Integer GRAPHIC_ORIGIN_WIDTH = 290;
     private static final Integer GRAPHIC_ORIGIN_HEIGHT = 210;
-    private static final Integer GRAPHIC_ORIGIN_X = 21;
-    private static final Integer GRAPHIC_ORIGIN_Y = 219;
+    private static final Integer GRAPHIC_ORIGIN_X = 22;
+    private static final Integer GRAPHIC_ORIGIN_Y = 220;
     private static final Integer ORIGIN_TEXT_SIZE = 16;
     private static final Integer DATE_ORIGIN_X = 20;
     private static final Integer DATE_ORIGIN_Y = 237;

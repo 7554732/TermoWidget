@@ -35,11 +35,6 @@ import java.util.Date;
 
 import static com.example.termowidget.GraphicTask.timeToString;
 
-//
-//  Plan to add:
-//  in ConfigActivity
-//      graphicCheckBox after DeleteFromDBThread error
-//      change 0 color
 
 public class ConfigActivity extends Activity {
 

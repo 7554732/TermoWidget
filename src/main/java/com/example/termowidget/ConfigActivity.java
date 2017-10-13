@@ -81,8 +81,8 @@ public class ConfigActivity extends Activity {
         graphicCheckBox.setChecked(quickSharedPreferences.isGraphic());
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
-        createGraphic(quickSharedPreferences.isGraphic());
         registerForContextMenu(graphicViev);
+        createGraphic(quickSharedPreferences.isGraphic());
 
         handler = new ConfigActivityHandler(this);
     }
@@ -149,17 +149,20 @@ public class ConfigActivity extends Activity {
     }
 
     private void createGraphic(Boolean is_graphic) {
+        graphicTask = (GraphicTask) getLastNonConfigurationInstance();
+        if (graphicTask != null) {
+            // send current Activity in the GraphicTask
+            graphicTask.link(this);
+        }
+        else if(is_graphic){
+            graphicTask = new GraphicTask(this, graphicPeriod);
+            graphicTask.execute();
+        }
+        else{
+
+        }
         if(is_graphic){
             graphicViev.setVisibility (View.VISIBLE);
-            graphicTask = (GraphicTask) getLastNonConfigurationInstance();
-            if (graphicTask == null) {
-                graphicTask = new GraphicTask(this, graphicPeriod);
-                graphicTask.execute();
-            }
-            else{
-                // send current Activity in the GraphicTask
-                graphicTask.link(this);
-            }
         }
         else{
             graphicViev.setVisibility (View.INVISIBLE);

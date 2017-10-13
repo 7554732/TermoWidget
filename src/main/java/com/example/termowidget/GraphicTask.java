@@ -91,7 +91,9 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
 
         // get data and draw the rectangles
-        drawRects(canvas, graphic, cursor, numberOfData);
+        if(numberOfData > 0){
+            drawRects(canvas, graphic, cursor, numberOfData);
+        }
 
         cursor.close();
         //  close connection to DB

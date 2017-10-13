@@ -16,7 +16,7 @@ public class WidgetUpdaterService extends IntentService{
     final static String LOG_TAG = "WidgetUpdaterService";
     static private TermoBroadCastReceiver termoBroadCastReceiver = new TermoBroadCastReceiver() ;
 
-    private static Boolean isPendingIntentSet =false;
+    private static Boolean isOnClickPendingIntentSet =false;
 
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
@@ -34,10 +34,10 @@ public class WidgetUpdaterService extends IntentService{
         Log.d(LOG_TAG, "termoBroadCastReceiver registered");
 
         //  set PendingIntent to start ConfigActivity at first time WidgetUpdaterService runned
-        if(isPendingIntentSet==false){
-            setOnClickPendingIntent(this);
-            isPendingIntentSet=true;
+        if(isOnClickPendingIntentSet==false){
+            isOnClickPendingIntentSet=true;
         }
+        setOnClickPendingIntent(this);
 
         Log.d(LOG_TAG, "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);

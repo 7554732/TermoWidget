@@ -87,9 +87,7 @@ public class TermoWidget extends AppWidgetProvider {
         //  stop ScreenStateService
         context.stopService(new Intent(context, ScreenStateService.class));
 
-        if (pIntentWidgetUpdaterService != null) {
-            stopAlarmManager(pIntentWidgetUpdaterService);
-        }
+        stopAlarmManager(pIntentWidgetUpdaterService);
 
         Log.d(LOG_TAG, "TermoWidget Disabled");
     }

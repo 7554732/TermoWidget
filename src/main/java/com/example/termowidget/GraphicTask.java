@@ -49,7 +49,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
     protected Bitmap doInBackground(Object[] params) {
 
         // open bitmap
-        final Bitmap bitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
+        Bitmap bitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
 
         // create canvas
         Canvas canvas = new Canvas(bitmap);

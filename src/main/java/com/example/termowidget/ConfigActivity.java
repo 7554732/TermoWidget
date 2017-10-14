@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -146,16 +147,18 @@ public class ConfigActivity extends Activity {
     private void createGraphic(Boolean is_graphic) {
         graphicTask = (GraphicTask) getLastNonConfigurationInstance();
         if (graphicTask != null) {
-            // send current Activity in the GraphicTask
+            // send current Activity in the returned GraphicTask
             graphicTask.link(this);
         }
         else if(is_graphic){
+            //  if there is no returned GraphicTask and graphic is on
+            //  run new GraphicTask
             graphicTask = new GraphicTask(this, graphicPeriod);
             graphicTask.execute();
         }
         else{
-
         }
+
         if(is_graphic){
             graphicViev.setVisibility (View.VISIBLE);
         }
@@ -165,9 +168,12 @@ public class ConfigActivity extends Activity {
     }
 
     public Object onRetainNonConfigurationInstance() {
-        // remove from GraphicTask link to prior Activity
-        graphicTask.unLink();
-        return graphicTask;
+        if(graphicTask.getStatus() == AsyncTask.Status.RUNNING){
+            return graphicTask;
+        }
+        else{
+            return null;
+        }
     }
 
     public void onStatusBarChBoxClick(View view){

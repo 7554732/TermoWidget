@@ -13,6 +13,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -49,7 +50,12 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
     protected Bitmap doInBackground(Object[] params) {
 
         // open bitmap
-        Bitmap bitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
+        Bitmap immutableBitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
+        // bitmap for canvas mast be mutable
+        Bitmap bitmap = immutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        //  finish GraphicTask if copy of origin bitmap is steel immutable
+        if (!bitmap.isMutable())
+            return bitmap;
 
         // create canvas
         Canvas canvas = new Canvas(bitmap);
@@ -101,6 +107,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
         return bitmap;
     }
+
 
     public static String timeToString(Integer time, String formatStr) {
         Date date = new Date();

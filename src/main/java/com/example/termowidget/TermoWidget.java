@@ -10,6 +10,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -31,6 +32,8 @@ public class TermoWidget extends AppWidgetProvider {
     public static PendingIntent pIntentWidgetUpdaterService;
 
     private static QuickSharedPreferences quickSharedPreferences;
+    private static PowerManager powerManager;
+    private static PowerManager.WakeLock wakeLock;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -65,13 +68,21 @@ public class TermoWidget extends AppWidgetProvider {
 
         Integer amType;
         String amTypeString;
+
+        powerManager = (PowerManager) context.getSystemService(context.POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getPackageName().toString());
+
         if(quickSharedPreferences.isGraphic()){
             amType = AlarmManager.RTC_WAKEUP;
             amTypeString = "RTC_WAKEUP";
+            wakeLock.acquire();
         }
         else {
             amType = AlarmManager.RTC;
             amTypeString = "RTC";
+            if(wakeLock.isHeld()){
+                wakeLock.release();
+            }
         }
 
         mAlarmManager.setRepeating(amType, System.currentTimeMillis() + DELAY_FIRST_TIME, UPDATE_TIME, pIntent);

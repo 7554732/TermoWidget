@@ -7,7 +7,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 
@@ -17,6 +20,9 @@ public class WidgetUpdaterService extends IntentService{
     static private TermoBroadCastReceiver termoBroadCastReceiver = new TermoBroadCastReceiver() ;
 
     private static Boolean isOnClickPendingIntentSet =false;
+
+    private static PowerManager powerManager;
+    private static PowerManager.WakeLock wakeLock;
 
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
@@ -28,6 +34,9 @@ public class WidgetUpdaterService extends IntentService{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        //  screen on to receive properly temperature
+        setScreenOn(TermoBroadCastReceiver.isTimeAddToDB());
 
         //  register receiver to catch ACTION_BATTERY_CHANGED
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -41,6 +50,22 @@ public class WidgetUpdaterService extends IntentService{
 
         Log.d(LOG_TAG, "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    // Sets screenOn:
+    private void setScreenOn(Boolean screenOn) {
+        if(powerManager == null) powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,"setScreenOn");
+
+        if(screenOn) {
+            wakeLock.acquire();
+            Log.d(LOG_TAG, "acquire FULL_WAKE_LOCK");
+        } else {
+            if(wakeLock.isHeld()){
+                wakeLock.release();
+                Log.d(LOG_TAG, "release FULL_WAKE_LOCK");
+            }
+        }
     }
 
     @Override

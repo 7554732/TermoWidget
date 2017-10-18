@@ -33,6 +33,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
+    private static Boolean flagAddToDB;
 
     private QuickSharedPreferences quickSharedPreferences;
 
@@ -252,15 +253,10 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         if(quickSharedPreferences.isGraphic() == false){
             return;
         }
+        if (flagAddToDB){
 
-        Date date = new Date();
-        Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
-        Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
-
-        Log.d(LOG_TAG, "From Last Add batteryTemper To DB have passed "+ secondsFromLastAddToDB + " seconds");
-
-        if (secondsFromLastAddToDB >= MIN_PERIOD_ADD_TO_DB ){
-            lastTimeAddToDB = curTimeAddToDB;
+            Date date = new Date();
+            Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
 
             //  create data object to insert in DB
             ContentValues contentValues = new ContentValues();
@@ -271,7 +267,21 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             AddToDBThread addToDBThread = new AddToDBThread(context, contentValues);
             addToDBThread.start();
 
+            flagAddToDB = false;
         }
+    }
+
+    public static Boolean isTimeAddToDB() {
+        //  if graphic is off no not add data to DB
+        Date date = new Date();
+        Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
+        Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
+
+        if (secondsFromLastAddToDB >= MIN_PERIOD_ADD_TO_DB ) {
+            lastTimeAddToDB = curTimeAddToDB;
+            flagAddToDB = true;
+        }
+        return flagAddToDB;
     }
 
     //	insert to DB in separate thread

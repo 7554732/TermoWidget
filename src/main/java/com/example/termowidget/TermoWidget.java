@@ -36,9 +36,6 @@ public class TermoWidget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
-        //  initialize SharedPreferences
-        quickSharedPreferences = new QuickSharedPreferences(context);
-
         stopAlarmManager(pIntentWidgetUpdaterService);
 
         //  run permanently widget update
@@ -59,9 +56,11 @@ public class TermoWidget extends AppWidgetProvider {
     }
 
     public static PendingIntent setAlarmManager(Context context) {
-        Intent intent = new Intent(context,WidgetUpdaterService.class);
-        PendingIntent pIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         mAlarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(context);
 
         Integer amType;
         String amTypeString;
@@ -74,7 +73,11 @@ public class TermoWidget extends AppWidgetProvider {
             amTypeString = "RTC";
         }
 
+        Intent intent = new Intent(context,WidgetUpdaterService.class);
+        PendingIntent pIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         mAlarmManager.setRepeating(amType, System.currentTimeMillis() + DELAY_FIRST_TIME, UPDATE_TIME, pIntent);
+
         Log.d(LOG_TAG, "AlarmManager runned. amType: " + amTypeString);
         return pIntent;
     }

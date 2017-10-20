@@ -32,7 +32,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     final static String LOG_TAG = "TermoBroadCastReceiver";
     final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
-    private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
+    private static final Integer MIN_PERIOD_ADD_TO_DB = 60; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
 
     private QuickSharedPreferences quickSharedPreferences;

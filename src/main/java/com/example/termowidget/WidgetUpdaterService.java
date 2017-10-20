@@ -13,6 +13,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 
 public class WidgetUpdaterService extends IntentService{
 
@@ -36,7 +38,7 @@ public class WidgetUpdaterService extends IntentService{
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         //  screen on to receive properly temperature
-        setScreenOn(TermoBroadCastReceiver.isTimeAddToDB());
+        setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
 
         //  register receiver to catch ACTION_BATTERY_CHANGED
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -53,17 +55,29 @@ public class WidgetUpdaterService extends IntentService{
     }
 
     // Sets screenOn:
-    private void setScreenOn(Boolean screenOn) {
+    private void setScreenOn(Context context, Boolean screenOn) {
         if(powerManager == null) powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,"setScreenOn");
+        if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
 
         if(screenOn) {
-            wakeLock.acquire();
-            Log.d(LOG_TAG, "acquire FULL_WAKE_LOCK");
+            if(!wakeLock.isHeld()){
+                wakeLock.acquire();
+                Log.d(LOG_TAG, "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+            }
+
+//            Intent configIntent = new Intent(context, ConfigActivity.class);
+//            configIntent.addFlags(FLAG_ACTIVITY_NEW_TASK );
+//            try {
+//                context.startActivity(configIntent);
+//            }
+//            catch (Exception e){
+//                Log.d(LOG_TAG, e.toString());
+//            }
+
         } else {
             if(wakeLock.isHeld()){
                 wakeLock.release();
-                Log.d(LOG_TAG, "release FULL_WAKE_LOCK");
+                Log.d(LOG_TAG, "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }
         }
     }
@@ -85,7 +99,6 @@ public class WidgetUpdaterService extends IntentService{
 
         //  create PendingIntent from Intent to start ConfigActivity
         Intent configIntent = new Intent(context, ConfigActivity.class);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         //  get RemoteViews by package name

@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -81,6 +83,17 @@ public class ConfigActivity extends Activity {
         createGraphic(quickSharedPreferences.isGraphic());
 
         handler = new ConfigActivityHandler(this);
+
+
+    }
+
+    private void unlockScreen() {
+        Window win = getWindow();
+        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        Log.d(LOG_TAG, "unlockScreen");
     }
 
     @Override

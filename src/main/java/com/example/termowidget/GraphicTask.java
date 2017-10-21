@@ -196,7 +196,9 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
                 String timeString = timeToString(rectTime,"HH:mm:ss");
                 timeString += " T=" + rectTemperature;
                 //  draw time string
-                canvas.drawTextOnPath(timeString, timePath, 0, 0, textPaint);
+                if(textPaint.getTextSize() < rectWidth){
+                    canvas.drawTextOnPath(timeString, timePath, 0, 0, textPaint);
+                }
 
                 Log.d(LOG_TAG, "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
             }

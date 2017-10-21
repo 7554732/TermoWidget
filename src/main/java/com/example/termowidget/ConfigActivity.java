@@ -80,7 +80,7 @@ public class ConfigActivity extends Activity {
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
         registerForContextMenu(graphicViev);
-        createGraphic(quickSharedPreferences.isGraphic());
+        createGraphic();
 
         handler = new ConfigActivityHandler(this);
 
@@ -157,8 +157,10 @@ public class ConfigActivity extends Activity {
         super.onDestroy();
     }
 
-    private void createGraphic(Boolean is_graphic) {
+    private void createGraphic() {
+        Boolean is_graphic = quickSharedPreferences.isGraphic();
         graphicTask = (GraphicTask) getLastNonConfigurationInstance();
+
         if (graphicTask != null) {
             // send current Activity in the returned GraphicTask
             graphicTask.link(this);
@@ -205,7 +207,7 @@ public class ConfigActivity extends Activity {
     public void onGraphicChBoxClick(View view){
         Boolean is_graphic = graphicCheckBox.isChecked();
         quickSharedPreferences.saveBoolean(quickSharedPreferences.GRAPHIC_PREFERENCES_KEY,is_graphic);
-        createGraphic(is_graphic);
+        createGraphic();
 
         //  restart AlarmManager of WidgetUpdaterService with new type
         TermoWidget.stopAlarmManager(TermoWidget.pIntentWidgetUpdaterService);
@@ -370,6 +372,8 @@ public class ConfigActivity extends Activity {
             message.obj = msgString;
             handler.sendMessage(message);
 
+            createGraphic();
+            
             Log.d(LOG_TAG, msgString);
         }
     }

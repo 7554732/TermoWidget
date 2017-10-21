@@ -252,7 +252,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  if graphic is off no not add data to DB
         if(quickSharedPreferences.isGraphic() == false){
             flagAddToDB = false;
-            WidgetUpdaterService.setScreenOn(context, flagAddToDB);
             return;
         }
         if (flagAddToDB){
@@ -270,7 +269,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             addToDBThread.start();
 
             flagAddToDB = false;
-            WidgetUpdaterService.setScreenOn(context, flagAddToDB);
         }
     }
 

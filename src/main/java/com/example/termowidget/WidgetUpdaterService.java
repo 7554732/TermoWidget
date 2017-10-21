@@ -26,6 +26,8 @@ public class WidgetUpdaterService extends IntentService{
     private static PowerManager powerManager;
     private static PowerManager.WakeLock wakeLock;
 
+    private static QuickSharedPreferences quickSharedPreferences;
+
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
     }
@@ -55,25 +57,19 @@ public class WidgetUpdaterService extends IntentService{
     }
 
     // Sets screenOn:
-    private void setScreenOn(Context context, Boolean screenOn) {
-        if(powerManager == null) powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+    public static void setScreenOn(Context context, Boolean screenOn) {
+        if(powerManager == null) powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
         if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
+        if(quickSharedPreferences == null) quickSharedPreferences = new QuickSharedPreferences(context);
 
         if(screenOn) {
             if(!wakeLock.isHeld()){
+                if(quickSharedPreferences.isGraphic() == false){
+                    return;
+                }
                 wakeLock.acquire();
                 Log.d(LOG_TAG, "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }
-
-//            Intent configIntent = new Intent(context, ConfigActivity.class);
-//            configIntent.addFlags(FLAG_ACTIVITY_NEW_TASK );
-//            try {
-//                context.startActivity(configIntent);
-//            }
-//            catch (Exception e){
-//                Log.d(LOG_TAG, e.toString());
-//            }
-
         } else {
             if(wakeLock.isHeld()){
                 wakeLock.release();

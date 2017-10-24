@@ -148,7 +148,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  schedule itself using local constants
         public void schedule(){
             //  get blinking status
-            //  if blinking is on schedule timer
+            //  schedule timer if blinking is on
             if(quickSharedPreferences.isBlinking()){
                 timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
             }
@@ -269,8 +269,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         }
     }
 
+    //  check time for adding data to DB
     public static Boolean isTimeAddToDB() {
-        //  if graphic is off no not add data to DB
         Date date = new Date();
         Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
         Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;

@@ -31,6 +31,7 @@ public class TermoWidget extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
+        //  stop previous AlarmManager by pending intent to restart it
         stopAlarmManager(pIntentWidgetUpdaterService);
 
         //  run permanently widget update
@@ -59,6 +60,7 @@ public class TermoWidget extends AppWidgetProvider {
 
         Integer amType;
         String amTypeString;
+        //  choose type of AlarmManager
         if(quickSharedPreferences.isGraphic()){
             amType = AlarmManager.RTC_WAKEUP;
             amTypeString = "RTC_WAKEUP";

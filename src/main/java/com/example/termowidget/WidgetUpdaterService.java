@@ -44,7 +44,7 @@ public class WidgetUpdaterService extends IntentService{
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
 
-        //  set PendingIntent to start ConfigActivity at first time WidgetUpdaterService runned
+        //  set PendingIntent to start ConfigActivity if WidgetUpdaterService has been runned first time
         if(isOnClickPendingIntentSet==false){
             isOnClickPendingIntentSet=true;
         }
@@ -60,16 +60,13 @@ public class WidgetUpdaterService extends IntentService{
         if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
         if(quickSharedPreferences == null) quickSharedPreferences = new QuickSharedPreferences(context);
 
-        if(screenOn) {
-            if(!wakeLock.isHeld()){
-                if(quickSharedPreferences.isGraphic() == false){
-                    return;
-                }
+        if(screenOn == true) {
+            if(wakeLock.isHeld() == false & quickSharedPreferences.isGraphic() == true){
                 wakeLock.acquire();
                 if (isDebug) Log.d(LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }
         } else {
-            if(wakeLock.isHeld()){
+            if(wakeLock.isHeld() == true){
                 wakeLock.release();
                 if (isDebug) Log.d(LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }

@@ -95,6 +95,7 @@ public class ConfigActivity extends Activity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        //  create context menu for graphic
         if(v.getId() == R.id.termo_graphic){
             getMenuInflater().inflate(R.menu.graphic_context_menu, menu);
         }
@@ -104,10 +105,12 @@ public class ConfigActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.export_data:
+                //  export from DB
                 ExportFromDBThread exportFromDBThread = new ExportFromDBThread(this);
                 exportFromDBThread.start();
                 break;
             case R.id.delete_data:
+                // clear DB
                 showDialog(DIALOG_DELETE_FROM_DB);
                 break;
             default:
@@ -117,21 +120,22 @@ public class ConfigActivity extends Activity {
     }
 
     protected Dialog onCreateDialog(int id) {
+        //  create dialog to confirm clear DB
         if (id == DIALOG_DELETE_FROM_DB) {
             AlertDialog.Builder adb = new AlertDialog.Builder(this);
 
             adb.setTitle(R.string.del_data_title);
             adb.setMessage(R.string.del_data_mes);
             adb.setIcon(android.R.drawable.ic_dialog_info);
-            adb.setPositiveButton(R.string.yes, myClickListener);
-            adb.setNegativeButton(R.string.no, myClickListener);
+            adb.setPositiveButton(R.string.yes, dialog_del_db_ClickListener);
+            adb.setNegativeButton(R.string.no, dialog_del_db_ClickListener);
 
             return adb.create();
         }
         return super.onCreateDialog(id);
     }
 
-    DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
+    DialogInterface.OnClickListener dialog_del_db_ClickListener = new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case Dialog.BUTTON_POSITIVE:
@@ -178,6 +182,7 @@ public class ConfigActivity extends Activity {
         }
     }
 
+    //  return graphicTask for current activity if it has not been completed in previous activity
     public Object onRetainNonConfigurationInstance() {
         if(graphicTask.getStatus() == AsyncTask.Status.RUNNING){
             return graphicTask;
@@ -327,6 +332,7 @@ public class ConfigActivity extends Activity {
         toast.show();
     }
 
+    //  recieve message and send it to toast
     static class ConfigActivityHandler extends Handler {
         WeakReference<ConfigActivity> wrActivity;
         public ConfigActivityHandler(ConfigActivity configActivity) {

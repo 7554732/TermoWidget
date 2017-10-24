@@ -31,7 +31,7 @@ public class QuickSharedPreferences {
             return  sharedPreferences.getBoolean(key, defaultValue);
         }
         else{
-            throw new IOException("Preferences Key does not exsist");
+            throw new IOException("Preferences Key does not exist");
         }
     }
 

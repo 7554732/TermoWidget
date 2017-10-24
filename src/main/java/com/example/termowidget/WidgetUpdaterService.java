@@ -9,13 +9,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.RemoteViews;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
-import static com.example.termowidget.TermoWidget.*;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class WidgetUpdaterService extends IntentService{

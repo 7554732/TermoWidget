@@ -1,8 +1,6 @@
 package com.example.termowidget;
 
 
-import android.content.ComponentName;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -15,12 +13,12 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.example.termowidget.TermoWidget.*;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 

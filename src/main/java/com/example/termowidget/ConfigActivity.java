@@ -6,14 +6,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -37,7 +32,8 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 
 import static com.example.termowidget.GraphicTask.timeToString;
-import static com.example.termowidget.TermoWidget.*;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class ConfigActivity extends Activity {

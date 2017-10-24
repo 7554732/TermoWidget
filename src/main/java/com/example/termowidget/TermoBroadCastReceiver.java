@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -18,22 +17,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.R.attr.name;
-import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
-
-import static com.example.termowidget.TermoWidget.*;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
-    private static final Integer MIN_PERIOD_ADD_TO_DB = 60; //(seconds) minimum period between adding temperature to DB
+    private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
 
     private QuickSharedPreferences quickSharedPreferences;

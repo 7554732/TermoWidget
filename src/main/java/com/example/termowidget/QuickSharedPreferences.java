@@ -7,7 +7,8 @@ import android.util.Log;
 import java.io.IOException;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.example.termowidget.TermoWidget.*;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 public class QuickSharedPreferences {
 

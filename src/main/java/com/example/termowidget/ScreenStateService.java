@@ -6,9 +6,10 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.util.Log;
 
+import static com.example.termowidget.TermoWidget.*;
+
 public class ScreenStateService extends Service {
 
-    final static private String LOG_TAG = "ScreenStateService";
     static private ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
 
     @Override
@@ -25,10 +26,10 @@ public class ScreenStateService extends Service {
         }
         catch (Exception e){
             this.registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-            Log.d(LOG_TAG, "screenStateReceiver  registered");
+            if (isDebug) Log.w(LOG_TAG , "screenStateReceiver  registered");
         }
 
-        Log.d(LOG_TAG, "ScreenStateService Started");
+        if (isDebug) Log.d(LOG_TAG , "ScreenStateService Started");
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -38,17 +39,17 @@ public class ScreenStateService extends Service {
         super.onDestroy();
         try {
             this.unregisterReceiver(screenStateReceiver);
-            Log.d(LOG_TAG, "screenStateReceiver unregistered");
+            if (isDebug) Log.d(LOG_TAG , "screenStateReceiver unregistered");
         }
         catch (Exception e){
-                Log.d(LOG_TAG, "screenStateReceiver is not registered");
+                if (isDebug) Log.w(LOG_TAG , "screenStateReceiver is not registered");
         }
-        Log.d(LOG_TAG, "ScreenStateService Destroy");
+        if (isDebug) Log.d(LOG_TAG , "ScreenStateService Destroy");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(LOG_TAG, "ScreenStateService onBind");
+        if (isDebug) Log.d(LOG_TAG , "ScreenStateService onBind");
         return null;
     }
 }

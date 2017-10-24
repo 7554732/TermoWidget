@@ -21,7 +21,8 @@ import static android.content.Context.ALARM_SERVICE;
 
 public class TermoWidget extends AppWidgetProvider {
 
-    final static String LOG_TAG = "TermoWidget";
+    public static final boolean isDebug = true;
+    public static final String LOG_TAG = "TermoWidget";
 
 
     final static private int DELAY_FIRST_TIME = 500;
@@ -44,14 +45,14 @@ public class TermoWidget extends AppWidgetProvider {
         //  start ScreenStateService  to catch ACTION_SCREEN_ON
         context.startService(new Intent(context, ScreenStateService.class));
 
-        Log.d(LOG_TAG, "TermoWidget Updated");
+        if (isDebug) Log.d(LOG_TAG , "TermoWidget Updated");
 
     }
 
     public static void stopAlarmManager(PendingIntent pIntent) {
         if(pIntent != null) {
             mAlarmManager.cancel(pIntent);
-            Log.d(LOG_TAG, "AlarmManager canceled");
+            if (isDebug) Log.d(LOG_TAG , "AlarmManager canceled");
         }
     }
 
@@ -78,7 +79,7 @@ public class TermoWidget extends AppWidgetProvider {
 
         mAlarmManager.setRepeating(amType, System.currentTimeMillis() + DELAY_FIRST_TIME, UPDATE_TIME, pIntent);
 
-        Log.d(LOG_TAG, "AlarmManager runned. amType: " + amTypeString);
+        if (isDebug) Log.d(LOG_TAG , "AlarmManager runned. amType: " + amTypeString);
         return pIntent;
     }
 
@@ -92,6 +93,6 @@ public class TermoWidget extends AppWidgetProvider {
 
         stopAlarmManager(pIntentWidgetUpdaterService);
 
-        Log.d(LOG_TAG, "TermoWidget Disabled");
+        if (isDebug) Log.d(LOG_TAG , "TermoWidget Disabled");
     }
 }

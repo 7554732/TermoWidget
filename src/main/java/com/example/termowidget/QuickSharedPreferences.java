@@ -7,10 +7,9 @@ import android.util.Log;
 import java.io.IOException;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.example.termowidget.TermoWidget.*;
 
 public class QuickSharedPreferences {
-
-    final static String LOG_TAG = "QuickSharedPreferences";
 
     final static public String  PREFERENCES_FILE_NAME  = "config";
     public static final String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
@@ -50,7 +49,7 @@ public class QuickSharedPreferences {
         try {
             is_status_bar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
         } catch (IOException e) {
-            Log.d(LOG_TAG, e.toString());
+            if (isDebug) Log.w(LOG_TAG , e.toString());
         }
         return is_status_bar;
     }
@@ -60,7 +59,7 @@ public class QuickSharedPreferences {
         try {
             is_blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
         } catch (IOException e) {
-            Log.d(LOG_TAG, e.toString());
+            if (isDebug) Log.w(LOG_TAG , e.toString());
         }
         return is_blinking;
     }
@@ -70,7 +69,7 @@ public class QuickSharedPreferences {
         try {
             is_graphic = loadPreferences(sharedPreferences, GRAPHIC_PREFERENCES_KEY, true);
         } catch (IOException e) {
-            Log.d(LOG_TAG, e.toString());
+            if (isDebug) Log.w(LOG_TAG , e.toString());
         }
         return is_graphic;
     }

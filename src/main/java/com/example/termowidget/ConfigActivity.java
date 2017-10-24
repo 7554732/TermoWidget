@@ -37,11 +37,11 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 
 import static com.example.termowidget.GraphicTask.timeToString;
+import static com.example.termowidget.TermoWidget.*;
 
 
 public class ConfigActivity extends Activity {
 
-    final static String LOG_TAG = "ConfigActivity";
     private static final int DIALOG_DELETE_FROM_DB = 1;
 
     private static Integer graphicPeriod = 3600;
@@ -93,7 +93,7 @@ public class ConfigActivity extends Activity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        Log.d(LOG_TAG, "unlockScreen");
+        if (isDebug) Log.d(LOG_TAG , "unlockScreen");
     }
 
     @Override
@@ -236,14 +236,14 @@ public class ConfigActivity extends Activity {
             if(sdPath.exists() == false){
                 //  make dir
                 if(sdPath.mkdirs()){
-                    Log.d(LOG_TAG, "make dir " + sdPath.getAbsolutePath());
+                    if (isDebug) Log.d(LOG_TAG , "make dir " + sdPath.getAbsolutePath());
                 }
                 else{
-                    Log.d(LOG_TAG, "Error make dir " + sdPath.getAbsolutePath());
+                    if (isDebug) Log.w(LOG_TAG , "Error make dir " + sdPath.getAbsolutePath());
                 }
             }
             else {
-                Log.d(LOG_TAG,sdPath.getAbsolutePath() + " already exist");
+                if (isDebug) Log.d(LOG_TAG ,sdPath.getAbsolutePath() + " already exist");
             }
 
             // get current time
@@ -280,7 +280,7 @@ public class ConfigActivity extends Activity {
                                         + DBHelper.DATE_TERMO_ROW_NAME + " : " + timeString + " "
                                         + DBHelper.TEMPERATURE_TERMO_ROW_NAME + " : " + temperature;
                     if(writeFileSD(exportString)) counterExportedStrings++;
-                    Log.d(LOG_TAG, exportString);
+                    if (isDebug) Log.d(LOG_TAG , exportString);
                 }
                 while (cursor.moveToNext());
             }
@@ -296,13 +296,13 @@ public class ConfigActivity extends Activity {
             message.obj = msgString;
             handler.sendMessage(message);
 
-            Log.d(LOG_TAG, msgString);
+            if (isDebug) Log.d(LOG_TAG , msgString);
         }
 
         Boolean writeFileSD(String outputStr) {
             // check access to SD
             if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                Log.d(LOG_TAG, "SD-card access denied: " + Environment.getExternalStorageState());
+                if (isDebug) Log.w(LOG_TAG , "SD-card access denied: " + Environment.getExternalStorageState());
                 return false;
             }
             Boolean is_append = true;
@@ -317,7 +317,7 @@ public class ConfigActivity extends Activity {
                 bw.flush();
                 // close stream
                 bw.close();
-                Log.d(LOG_TAG, "File have been written to SD:  " + sdFile.getAbsolutePath());
+                if (isDebug) Log.d(LOG_TAG , "File have been written to SD:  " + sdFile.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
@@ -373,8 +373,8 @@ public class ConfigActivity extends Activity {
             handler.sendMessage(message);
 
             createGraphic();
-            
-            Log.d(LOG_TAG, msgString);
+
+            if (isDebug) Log.d(LOG_TAG , msgString);
         }
     }
 }

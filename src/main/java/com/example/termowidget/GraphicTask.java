@@ -20,9 +20,9 @@ import android.widget.ImageView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
+import static com.example.termowidget.TermoWidget.*;
 
-    final static String LOG_TAG = "GraphicTask";
+public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
     private static final Integer BITMAP_ORIGIN_WIDTH = 320;
     private static final Integer BITMAP_ORIGIN_HEIGHT = 240;
@@ -97,7 +97,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, selection, null, null, null, null);
 
         Integer numberOfData = cursor.getCount();
-        Log.d(LOG_TAG, "Amount of  data from interval in DB: " + numberOfData );
+        if (isDebug) Log.d(LOG_TAG , "Amount of  data from interval in DB: " + numberOfData );
 
         // create CanvasObject to convert object coordinates
         CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
@@ -145,7 +145,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         //  calculate  Width of rectangle
         Float rectWidth = graphicWidth / numberOfRect;
 
-        Log.d(LOG_TAG, "numberOfRect: " + numberOfRect
+        if (isDebug) Log.d(LOG_TAG , "numberOfRect: " + numberOfRect
                 + " dataPerRect: " + dataPerRect
                 + " rectWidth: " + rectWidth);
 
@@ -200,7 +200,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
                     canvas.drawTextOnPath(timeString, timePath, 0, 0, textPaint);
                 }
 
-                Log.d(LOG_TAG, "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
+                if (isDebug) Log.d(LOG_TAG , "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
             }
         }
 

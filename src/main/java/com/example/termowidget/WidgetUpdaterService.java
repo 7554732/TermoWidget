@@ -9,22 +9,22 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.PowerManager;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.RemoteViews;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class WidgetUpdaterService extends IntentService{
 
-    final static String LOG_TAG = "WidgetUpdaterService";
     static private TermoBroadCastReceiver termoBroadCastReceiver = new TermoBroadCastReceiver() ;
 
     private static Boolean isOnClickPendingIntentSet =false;
 
     private static PowerManager powerManager;
     private static PowerManager.WakeLock wakeLock;
+
+    private static QuickSharedPreferences quickSharedPreferences;
 
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
@@ -42,42 +42,33 @@ public class WidgetUpdaterService extends IntentService{
 
         //  register receiver to catch ACTION_BATTERY_CHANGED
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        Log.d(LOG_TAG, "termoBroadCastReceiver registered");
+        if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
 
-        //  set PendingIntent to start ConfigActivity at first time WidgetUpdaterService runned
+        //  set PendingIntent to start ConfigActivity if WidgetUpdaterService has been runned first time
         if(isOnClickPendingIntentSet==false){
             isOnClickPendingIntentSet=true;
         }
         setOnClickPendingIntent(this);
 
-        Log.d(LOG_TAG, "WidgetUpdaterService Started");
+        if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);
     }
 
     // Sets screenOn:
-    private void setScreenOn(Context context, Boolean screenOn) {
-        if(powerManager == null) powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+    public static void setScreenOn(Context context, Boolean screenOn) {
+        if(powerManager == null) powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
         if(wakeLock == null) wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
+        if(quickSharedPreferences == null) quickSharedPreferences = new QuickSharedPreferences(context);
 
-        if(screenOn) {
-            if(!wakeLock.isHeld()){
+        if(screenOn == true) {
+            if(wakeLock.isHeld() == false & quickSharedPreferences.isGraphic() == true){
                 wakeLock.acquire();
-                Log.d(LOG_TAG, "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+                if (isDebug) Log.d(LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }
-
-//            Intent configIntent = new Intent(context, ConfigActivity.class);
-//            configIntent.addFlags(FLAG_ACTIVITY_NEW_TASK );
-//            try {
-//                context.startActivity(configIntent);
-//            }
-//            catch (Exception e){
-//                Log.d(LOG_TAG, e.toString());
-//            }
-
         } else {
-            if(wakeLock.isHeld()){
+            if(wakeLock.isHeld() == true){
                 wakeLock.release();
-                Log.d(LOG_TAG, "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+                if (isDebug) Log.d(LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
             }
         }
     }
@@ -86,12 +77,12 @@ public class WidgetUpdaterService extends IntentService{
     public void onDestroy() {
             try {
                 this.unregisterReceiver(termoBroadCastReceiver);
-                Log.d(LOG_TAG, "termoBroadCastReceiver unregistered");
+                if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver unregistered");
             }
             catch (Exception e){
-                Log.d(LOG_TAG, "termoBroadCastReceiver is not registered yet");
+                if (isDebug) Log.w(LOG_TAG , "termoBroadCastReceiver is not registered yet");
             }
-        Log.d(LOG_TAG, "WidgetUpdaterService Destroy");
+        if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Destroy");
         super.onDestroy();
     }
 
@@ -111,6 +102,6 @@ public class WidgetUpdaterService extends IntentService{
         ComponentName componentName = new ComponentName(context,TermoWidget.class);
         appWidgetManager.updateAppWidget(componentName, widgetView);
 
-        Log.d(LOG_TAG, "PendingIntent set");
+        if (isDebug) Log.d(LOG_TAG , "PendingIntent set");
     }
 }

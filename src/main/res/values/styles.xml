@@ -2,9 +2,10 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:buttonStyle">@style/MyCustomButton</item>
+    </style>
+
+    <style name="MyCustomButton" parent="Base.Widget.AppCompat.Button">
+        <item name="android:textColor">#ffffff</item>
     </style>
 </resources>

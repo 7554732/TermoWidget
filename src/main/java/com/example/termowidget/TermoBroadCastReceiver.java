@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -18,21 +17,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.R.attr.name;
-import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
 
-    final static String LOG_TAG = "TermoBroadCastReceiver";
     final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
-    private static final Integer MIN_PERIOD_ADD_TO_DB = 60; //(seconds) minimum period between adding temperature to DB
+    private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
 
     private QuickSharedPreferences quickSharedPreferences;
@@ -58,7 +55,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set color for widget text
         widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(batteryTemper)));
 
-        Log.d(LOG_TAG, "batteryTemper "+batteryTemper);
+        if (isDebug) Log.d(LOG_TAG , "batteryTemper "+batteryTemper);
 
         //  widget blinking
         Blinker blinker = new Blinker(context);
@@ -108,7 +105,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         //  update widget
         appWidgetManager.updateAppWidget(componentName, widgetView);
-        Log.d(LOG_TAG, "updateWidget "+componentName);
+        if (isDebug) Log.d(LOG_TAG , "updateWidget "+componentName);
     }
 
     private class Blinker extends TimerTask {
@@ -151,7 +148,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  schedule itself using local constants
         public void schedule(){
             //  get blinking status
-            //  if blinking is on schedule timer
+            //  schedule timer if blinking is on
             if(quickSharedPreferences.isBlinking()){
                 timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
             }
@@ -251,6 +248,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     private void addTemperatureToDB(Context context, int batteryTemper) {
         //  if graphic is off no not add data to DB
         if(quickSharedPreferences.isGraphic() == false){
+            flagAddToDB = false;
             return;
         }
         if (flagAddToDB){
@@ -271,8 +269,8 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         }
     }
 
+    //  check time for adding data to DB
     public static Boolean isTimeAddToDB() {
-        //  if graphic is off no not add data to DB
         Date date = new Date();
         Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
         Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
@@ -299,7 +297,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
             // insert row to DB and receive it ID
             long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, m_contentValues);
-            Log.d(LOG_TAG, "Add To DB " + m_contentValues.toString() );
+            if (isDebug) Log.d(LOG_TAG , "Add To DB " + m_contentValues.toString() );
 
             //  close connection to DB
             dbHelper.close();

@@ -6,19 +6,16 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -37,11 +34,12 @@ import java.lang.ref.WeakReference;
 import java.util.Date;
 
 import static com.example.termowidget.GraphicTask.timeToString;
+import static com.example.termowidget.TermoWidget.LOG_TAG;
+import static com.example.termowidget.TermoWidget.isDebug;
 
 
-public class ConfigActivity extends Activity {
+public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 
-    final static String LOG_TAG = "ConfigActivity";
     private static final int DIALOG_DELETE_FROM_DB = 1;
 
     private static Integer graphicPeriod = 3600;
@@ -80,7 +78,7 @@ public class ConfigActivity extends Activity {
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
         registerForContextMenu(graphicViev);
-        createGraphic(quickSharedPreferences.isGraphic());
+        createGraphic();
 
         handler = new ConfigActivityHandler(this);
 
@@ -93,12 +91,13 @@ public class ConfigActivity extends Activity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        Log.d(LOG_TAG, "unlockScreen");
+        if (isDebug) Log.d(LOG_TAG , "unlockScreen");
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        //  create context menu for graphic
         if(v.getId() == R.id.termo_graphic){
             getMenuInflater().inflate(R.menu.graphic_context_menu, menu);
         }
@@ -108,11 +107,15 @@ public class ConfigActivity extends Activity {
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.export_data:
+                //  export from DB
                 ExportFromDBThread exportFromDBThread = new ExportFromDBThread(this);
                 exportFromDBThread.start();
                 break;
             case R.id.delete_data:
-                showDialog(DIALOG_DELETE_FROM_DB);
+                // clear DB
+                DialogFragment dialog = new DelDataDialogFragment();
+                dialog.show(getSupportFragmentManager(), "DelDataDialogFragment");
+
                 break;
             default:
                 break;
@@ -120,35 +123,20 @@ public class ConfigActivity extends Activity {
         return super.onContextItemSelected(item);
     }
 
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_DELETE_FROM_DB) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-
-            adb.setTitle(R.string.del_data_title);
-            adb.setMessage(R.string.del_data_mes);
-            adb.setIcon(android.R.drawable.ic_dialog_info);
-            adb.setPositiveButton(R.string.yes, myClickListener);
-            adb.setNegativeButton(R.string.no, myClickListener);
-
-            return adb.create();
-        }
-        return super.onCreateDialog(id);
+    @Override
+    public void onDelDataDialogPositiveClick(DialogFragment dialog, int which) {
+        deleteFromDB();
     }
 
-    DialogInterface.OnClickListener myClickListener = new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case Dialog.BUTTON_POSITIVE:
-                    DeleteFromDBThread deleteFromDBThread = new DeleteFromDBThread(getApplicationContext());
-                    deleteFromDBThread.start();
-                    break;
-                case Dialog.BUTTON_NEGATIVE:
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    @Override
+    public void onDelDataDialogNegativeClick(DialogFragment dialog, int which) {
+
+    }
+
+    private void deleteFromDB() {
+        DeleteFromDBThread deleteFromDBThread = new DeleteFromDBThread(getApplicationContext());
+        deleteFromDBThread.start();
+    }
 
     @Override
     protected void onDestroy() {
@@ -157,8 +145,10 @@ public class ConfigActivity extends Activity {
         super.onDestroy();
     }
 
-    private void createGraphic(Boolean is_graphic) {
+    private void createGraphic() {
+        Boolean is_graphic = quickSharedPreferences.isGraphic();
         graphicTask = (GraphicTask) getLastNonConfigurationInstance();
+
         if (graphicTask != null) {
             // send current Activity in the returned GraphicTask
             graphicTask.link(this);
@@ -180,7 +170,8 @@ public class ConfigActivity extends Activity {
         }
     }
 
-    public Object onRetainNonConfigurationInstance() {
+    //  return graphicTask for current activity if it has not been completed in previous activity
+    public Object onRetainCustomNonConfigurationInstance() {
         if(graphicTask.getStatus() == AsyncTask.Status.RUNNING){
             return graphicTask;
         }
@@ -205,7 +196,7 @@ public class ConfigActivity extends Activity {
     public void onGraphicChBoxClick(View view){
         Boolean is_graphic = graphicCheckBox.isChecked();
         quickSharedPreferences.saveBoolean(quickSharedPreferences.GRAPHIC_PREFERENCES_KEY,is_graphic);
-        createGraphic(is_graphic);
+        createGraphic();
 
         //  restart AlarmManager of WidgetUpdaterService with new type
         TermoWidget.stopAlarmManager(TermoWidget.pIntentWidgetUpdaterService);
@@ -234,14 +225,14 @@ public class ConfigActivity extends Activity {
             if(sdPath.exists() == false){
                 //  make dir
                 if(sdPath.mkdirs()){
-                    Log.d(LOG_TAG, "make dir " + sdPath.getAbsolutePath());
+                    if (isDebug) Log.d(LOG_TAG , "make dir " + sdPath.getAbsolutePath());
                 }
                 else{
-                    Log.d(LOG_TAG, "Error make dir " + sdPath.getAbsolutePath());
+                    if (isDebug) Log.w(LOG_TAG , "Error make dir " + sdPath.getAbsolutePath());
                 }
             }
             else {
-                Log.d(LOG_TAG,sdPath.getAbsolutePath() + " already exist");
+                if (isDebug) Log.d(LOG_TAG ,sdPath.getAbsolutePath() + " already exist");
             }
 
             // get current time
@@ -278,7 +269,7 @@ public class ConfigActivity extends Activity {
                                         + DBHelper.DATE_TERMO_ROW_NAME + " : " + timeString + " "
                                         + DBHelper.TEMPERATURE_TERMO_ROW_NAME + " : " + temperature;
                     if(writeFileSD(exportString)) counterExportedStrings++;
-                    Log.d(LOG_TAG, exportString);
+                    if (isDebug) Log.d(LOG_TAG , exportString);
                 }
                 while (cursor.moveToNext());
             }
@@ -294,13 +285,13 @@ public class ConfigActivity extends Activity {
             message.obj = msgString;
             handler.sendMessage(message);
 
-            Log.d(LOG_TAG, msgString);
+            if (isDebug) Log.d(LOG_TAG , msgString);
         }
 
         Boolean writeFileSD(String outputStr) {
             // check access to SD
             if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                Log.d(LOG_TAG, "SD-card access denied: " + Environment.getExternalStorageState());
+                if (isDebug) Log.w(LOG_TAG , "SD-card access denied: " + Environment.getExternalStorageState());
                 return false;
             }
             Boolean is_append = true;
@@ -315,7 +306,7 @@ public class ConfigActivity extends Activity {
                 bw.flush();
                 // close stream
                 bw.close();
-                Log.d(LOG_TAG, "File have been written to SD:  " + sdFile.getAbsolutePath());
+                if (isDebug) Log.d(LOG_TAG , "File have been written to SD:  " + sdFile.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
@@ -329,6 +320,7 @@ public class ConfigActivity extends Activity {
         toast.show();
     }
 
+    //  recieve message and send it to toast
     static class ConfigActivityHandler extends Handler {
         WeakReference<ConfigActivity> wrActivity;
         public ConfigActivityHandler(ConfigActivity configActivity) {
@@ -370,7 +362,9 @@ public class ConfigActivity extends Activity {
             message.obj = msgString;
             handler.sendMessage(message);
 
-            Log.d(LOG_TAG, msgString);
+            createGraphic();
+
+            if (isDebug) Log.d(LOG_TAG , msgString);
         }
     }
 }

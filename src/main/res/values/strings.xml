@@ -5,7 +5,7 @@
     <string name="temperature">T</string>
     <string name="status_bar_info">Display Temperature in the Status Bar</string>
     <string name="is_blinking">Blinking</string>
-    <string name="is_graphic">Display Termo Graphic</string>
+    <string name="is_graphic">Display Termo Graphic \n(battery life can be affected)</string>
     <string name="export_data">Export Data</string>
     <string name="delete_data">Delete Data</string>
     <string name="file_export">strings have been written to SD: </string>

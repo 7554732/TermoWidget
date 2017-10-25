@@ -31,7 +31,8 @@
         <receiver android:name=".TermoBroadCastReceiver" />
 
         <activity
-            android:name="ConfigActivity">
+            android:name="ConfigActivity"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

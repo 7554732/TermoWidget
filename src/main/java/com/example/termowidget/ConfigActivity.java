@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -36,7 +38,7 @@ import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
 
 
-public class ConfigActivity extends Activity {
+public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 
     private static final int DIALOG_DELETE_FROM_DB = 1;
 
@@ -111,7 +113,9 @@ public class ConfigActivity extends Activity {
                 break;
             case R.id.delete_data:
                 // clear DB
-                showDialog(DIALOG_DELETE_FROM_DB);
+                DialogFragment dialog = new DelDataDialogFragment();
+                dialog.show(getSupportFragmentManager(), "DelDataDialogFragment");
+
                 break;
             default:
                 break;
@@ -119,36 +123,20 @@ public class ConfigActivity extends Activity {
         return super.onContextItemSelected(item);
     }
 
-    protected Dialog onCreateDialog(int id) {
-        //  create dialog to confirm clear DB
-        if (id == DIALOG_DELETE_FROM_DB) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-
-            adb.setTitle(R.string.del_data_title);
-            adb.setMessage(R.string.del_data_mes);
-            adb.setIcon(android.R.drawable.ic_dialog_info);
-            adb.setPositiveButton(R.string.yes, dialog_del_db_ClickListener);
-            adb.setNegativeButton(R.string.no, dialog_del_db_ClickListener);
-
-            return adb.create();
-        }
-        return super.onCreateDialog(id);
+    @Override
+    public void onDelDataDialogPositiveClick(DialogFragment dialog, int which) {
+        deleteFromDB();
     }
 
-    DialogInterface.OnClickListener dialog_del_db_ClickListener = new DialogInterface.OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case Dialog.BUTTON_POSITIVE:
-                    DeleteFromDBThread deleteFromDBThread = new DeleteFromDBThread(getApplicationContext());
-                    deleteFromDBThread.start();
-                    break;
-                case Dialog.BUTTON_NEGATIVE:
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    @Override
+    public void onDelDataDialogNegativeClick(DialogFragment dialog, int which) {
+
+    }
+
+    private void deleteFromDB() {
+        DeleteFromDBThread deleteFromDBThread = new DeleteFromDBThread(getApplicationContext());
+        deleteFromDBThread.start();
+    }
 
     @Override
     protected void onDestroy() {
@@ -183,7 +171,7 @@ public class ConfigActivity extends Activity {
     }
 
     //  return graphicTask for current activity if it has not been completed in previous activity
-    public Object onRetainNonConfigurationInstance() {
+    public Object onRetainCustomNonConfigurationInstance() {
         if(graphicTask.getStatus() == AsyncTask.Status.RUNNING){
             return graphicTask;
         }

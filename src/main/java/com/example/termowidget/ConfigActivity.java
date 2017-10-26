@@ -65,16 +65,22 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);
         //  set CheckBox value
         statusBarCheckBox.setChecked(quickSharedPreferences.isStatusBar());
+        //  set OnClickListener
+        statusBarCheckBox.setOnClickListener(chBoxListener);
 
         //  find blinking CheckBox
         blinkingCheckBox = (CheckBox) findViewById(R.id.is_blinking);
         //  set CheckBox value
         blinkingCheckBox.setChecked(quickSharedPreferences.isBlinking());
+        //  set OnClickListener
+        blinkingCheckBox.setOnClickListener(chBoxListener);
 
         //  find graphic CheckBox
         graphicCheckBox = (CheckBox) findViewById(R.id.is_graphic);
         //  set CheckBox value
         graphicCheckBox.setChecked(quickSharedPreferences.isGraphic());
+        //  set OnClickListener
+        graphicCheckBox.setOnClickListener(chBoxListener);
 
         graphicViev = (ImageView) findViewById(R.id.termo_graphic);
         registerForContextMenu(graphicViev);
@@ -85,20 +91,32 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
     }
 
-    private void unlockScreen() {
-        Window win = getWindow();
-        win.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-        win.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
-        if (isDebug) Log.d(LOG_TAG , "unlockScreen");
-    }
+    private View.OnClickListener chBoxListener = new View.OnClickListener()
+    {
+
+        public void onClick(View view)
+        {
+            switch (view.getId()){
+                case R.id.status_bar_info:
+                    onStatusBarChBoxClick(view);
+                    break;
+                case R.id.is_blinking:
+                    onBlinkingChBoxClick(view);
+                    break;
+                case R.id.is_graphic:
+                    onGraphicChBoxClick(view);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
+    public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, view, menuInfo);
         //  create context menu for graphic
-        if(v.getId() == R.id.termo_graphic){
+        if(view.getId() == R.id.termo_graphic){
             getMenuInflater().inflate(R.menu.graphic_context_menu, menu);
         }
     }

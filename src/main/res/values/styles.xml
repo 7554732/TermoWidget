@@ -6,6 +6,6 @@
     </style>
 
     <style name="MyCustomButton" parent="Base.Widget.AppCompat.Button">
-        <item name="android:textColor">#ffffff</item>
+        <item name="android:textColor">@color/colorWhite</item>
     </style>
 </resources>

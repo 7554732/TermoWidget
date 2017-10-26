@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#dedede</color>
 
+
+
+    <color name="colorWhite">#ffffff</color>
     <color name="colorUnknown">#dedede</color>
 
     <color name="colorHeat">#ff4000</color>

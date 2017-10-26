@@ -7,38 +7,36 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/status_bar_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
-        android:onClick="onStatusBarChBoxClick"
         android:text="@string/status_bar_info">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/is_blinking"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
-        android:onClick="onBlinkingChBoxClick"
         android:text="@string/is_blinking">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/is_graphic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
-        android:onClick="onGraphicChBoxClick"
         android:text="@string/is_graphic">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
 
     <ImageView
         android:id="@+id/termo_graphic"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="10dp"
         app:srcCompat="@mipmap/ic_launcher"
         android:onClick="onGraphicClick" />
 </LinearLayout>

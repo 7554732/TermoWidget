@@ -49,17 +49,12 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
         // open bitmap
         Bitmap bitmap;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-            Bitmap immutableBitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
-            // bitmap for canvas mast be mutable since API 11
-            bitmap = immutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
-            //  finish GraphicTask if copy of origin bitmap is steel immutable
-            if (!bitmap.isMutable())
-                return bitmap;
-        }
-        else{
-            bitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
-        }
+        Bitmap immutableBitmap = BitmapFactory.decodeResource(m_activity.getResources(), R.drawable.graphic);
+        // bitmap for canvas mast be mutable since API 11
+        bitmap = immutableBitmap.copy(Bitmap.Config.ARGB_8888, true);
+        //  finish GraphicTask if copy of origin bitmap is steel immutable
+        if (!bitmap.isMutable())
+            return bitmap;
 
         // create canvas
         Canvas canvas = new Canvas(bitmap);

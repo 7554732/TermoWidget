@@ -17,6 +17,8 @@ public class QuickSharedPreferences {
     public static final String BLINKING_PREFERENCES_KEY = "is_blinking";
     public static final String GRAPHIC_PREFERENCES_KEY = "is_graphic";
 
+    public static final String CALIBRATE_PREFERENCES_KEY = "calibration_temperature";
+
     public static SharedPreferences sharedPreferences;
 
     public QuickSharedPreferences(Context context){
@@ -35,14 +37,45 @@ public class QuickSharedPreferences {
         }
     }
 
+    static public Integer loadPreferences (SharedPreferences sharedPreferences, String key, Integer defaultValue) throws IOException{
+
+        //  check preferences key for exist and get it value
+        if (sharedPreferences.contains(key)) {
+            return  sharedPreferences.getInt(key, defaultValue);
+        }
+        else{
+            throw new IOException("Preferences Key does not exist");
+        }
+    }
+
     static public void savePreferences(SharedPreferences sharedPreferences, String key, Boolean value){
         SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
         preferencesEditor.putBoolean(key, value);
         preferencesEditor.apply();
     }
 
+    static public void savePreferences(SharedPreferences sharedPreferences, String key, Integer value){
+        SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
+        preferencesEditor.putInt(key, value);
+        preferencesEditor.apply();
+    }
+
     public void saveBoolean (String key, Boolean value){
         savePreferences(sharedPreferences, key, value);
+    }
+
+    public void saveInteger (String key, Integer value){
+        savePreferences(sharedPreferences, key, value);
+    }
+
+    public Integer getCalibrationTemperature() {
+        Integer calibrationTemperature = 0;
+        try {
+            calibrationTemperature = loadPreferences(sharedPreferences, CALIBRATE_PREFERENCES_KEY, 0);
+        } catch (IOException e) {
+            if (isDebug) Log.w(LOG_TAG , e.toString());
+        }
+        return calibrationTemperature;
     }
 
     public Boolean isStatusBar() {

@@ -22,8 +22,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.io.BufferedWriter;
@@ -33,6 +36,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 
+import static android.R.attr.data;
 import static com.example.termowidget.GraphicTask.timeToString;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
@@ -41,6 +45,7 @@ import static com.example.termowidget.TermoWidget.isDebug;
 public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 
     private static final int DIALOG_DELETE_FROM_DB = 1;
+    private static final int MAX_CALIBRATE_VALUE = 10;
 
     private static Integer graphicPeriod = 3600;
 
@@ -60,6 +65,38 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
         //  initialize SharedPreferences
         quickSharedPreferences = new QuickSharedPreferences(this);
+
+
+        // initialize adapter
+        final Integer[] calibrate_data = new Integer[2*MAX_CALIBRATE_VALUE + 1];
+        for(int counter = 0; counter < 2*MAX_CALIBRATE_VALUE + 1; counter++){
+            calibrate_data[counter] = counter - MAX_CALIBRATE_VALUE;
+        }
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, calibrate_data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        Spinner spinner = (Spinner) findViewById(R.id.calibrate_spinner);
+        spinner.setAdapter(adapter);
+
+        // title
+        spinner.setPrompt(getString(R.string.calibrate_tv));
+
+        // select spinner position
+        Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
+        Integer position = adapter.getPosition(calibrationTemperature);
+        spinner.setSelection(position);
+
+        // set Listener
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Integer calibrationTemperature = calibrate_data[position];
+                quickSharedPreferences.saveInteger(quickSharedPreferences.CALIBRATE_PREFERENCES_KEY,calibrationTemperature);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
 
         //  find statusBar CheckBox
         statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);

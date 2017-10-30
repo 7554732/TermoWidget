@@ -38,24 +38,29 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //  initialize SharedPreferences
         quickSharedPreferences = new QuickSharedPreferences(context);
+        //  get calibration temperature that means difference between environment and battery temperature
+        Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
 
         //  get battery temperature from intent extra
-        int batteryTemper = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
+        Integer batteryTemperature = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
+        //  calculate environment temperature
+        Integer temperature = batteryTemperature + calibrationTemperature;
+
         //  set temperature to widget
-        setTemperature(context,batteryTemper);
-        addTemperatureToDB(context,batteryTemper);
+        setTemperature(context,temperature);
+        addTemperatureToDB(context,temperature);
     }
 
-    private void setTemperature(Context context, int batteryTemper){
+    private void setTemperature(Context context, int temperature){
         //  get RemoteViews by package name
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
         //  set temperature string
-        widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(batteryTemper)+context.getString(R.string.degree));
+        widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(temperature)+context.getString(R.string.degree));
 
         //  set color for widget text
-        widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(batteryTemper)));
+        widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(temperature)));
 
-        if (isDebug) Log.d(LOG_TAG , "batteryTemper "+batteryTemper);
+        if (isDebug) Log.d(LOG_TAG , "temperature "+temperature);
 
         //  widget blinking
         Blinker blinker = new Blinker(context);
@@ -65,7 +70,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         updateWidget(context,widgetView);
 
         //  set temperature to status bar
-        setIconToStatusBar(context,batteryTemper);
+        setIconToStatusBar(context,temperature);
     }
 
     enum TermoColor{
@@ -88,9 +93,9 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int color(){return color;}
 
         // find matched color for temperature
-        static int getColor(int batteryTemper) {
+        static int getColor(int temperature) {
             for (TermoColor termoColor : TermoColor.values()){
-                if (batteryTemper > termoColor.temperature()) {
+                if (temperature > termoColor.temperature()) {
                     return termoColor.color();
                 }
             }
@@ -155,7 +160,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void setIconToStatusBar(Context context, int batteryTemper){
+    private void setIconToStatusBar(Context context, int temperature){
 
         Integer NOTIFICATION_ID = 1;
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
@@ -166,19 +171,19 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         if (quickSharedPreferences.isStatusBar()){
 
             NotificationCompat.Builder status_bar_Builder = new NotificationCompat.Builder(context)
-                    .setContentTitle(batteryTemper + " °");
+                    .setContentTitle(temperature + " °");
 
             // find matched icon for temperature
-            if (batteryTemper < TermoIcon.M31.temperature()){
+            if (temperature < TermoIcon.M31.temperature()){
                 //  set icon for status bar
                 status_bar_Builder.setSmallIcon(TermoIcon.M31.icon());
             }
-            else if(batteryTemper > TermoIcon.P51.temperature()){
+            else if(temperature > TermoIcon.P51.temperature()){
                 //  set icon for status bar
                 status_bar_Builder.setSmallIcon(TermoIcon.P51.icon());
             }
             else{
-                status_bar_Builder.setSmallIcon(TermoIcon.getIcon(batteryTemper));
+                status_bar_Builder.setSmallIcon(TermoIcon.getIcon(temperature));
             }
 
             Intent status_bar_Intent = new Intent(context, ConfigActivity.class);
@@ -235,9 +240,9 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         int iconL(){ return iconL;}
 
         // find matched icon for temperature
-        static int getIcon(int batteryTemper) {
+        static int getIcon(int temperature) {
             for (TermoIcon termoIcon : TermoIcon.values()){
-                if (batteryTemper == termoIcon.temperature()) {
+                if (temperature == termoIcon.temperature()) {
                     return termoIcon.icon();
                 }
             }
@@ -245,7 +250,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         }
     }
 
-    private void addTemperatureToDB(Context context, int batteryTemper) {
+    private void addTemperatureToDB(Context context, int temperature) {
         //  if graphic is off no not add data to DB
         if(quickSharedPreferences.isGraphic() == false){
             flagAddToDB = false;
@@ -259,7 +264,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             //  create data object to insert in DB
             ContentValues contentValues = new ContentValues();
             contentValues.put(DBHelper.DATE_TERMO_ROW_NAME, curTimeAddToDB);
-            contentValues.put(DBHelper.TEMPERATURE_TERMO_ROW_NAME, batteryTemper);
+            contentValues.put(DBHelper.TEMPERATURE_TERMO_ROW_NAME, temperature);
 
             //	insert to DB in separate thread
             AddToDBThread addToDBThread = new AddToDBThread(context, contentValues);

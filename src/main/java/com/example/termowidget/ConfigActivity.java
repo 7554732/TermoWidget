@@ -52,7 +52,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
     private CheckBox statusBarCheckBox;
     private CheckBox blinkingCheckBox;
     private CheckBox graphicCheckBox;
-    private ImageView graphicViev;
+    private ImageView graphicView;
     private GraphicTask graphicTask;
 
     private QuickSharedPreferences quickSharedPreferences;
@@ -119,8 +119,8 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         //  set OnClickListener
         graphicCheckBox.setOnClickListener(chBoxListener);
 
-        graphicViev = (ImageView) findViewById(R.id.termo_graphic);
-        registerForContextMenu(graphicViev);
+        graphicView = (ImageView) findViewById(R.id.termo_graphic);
+        registerForContextMenu(graphicView);
         createGraphic();
 
         handler = new ConfigActivityHandler(this);
@@ -218,10 +218,10 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         }
 
         if(is_graphic){
-            graphicViev.setVisibility (View.VISIBLE);
+            graphicView.setVisibility (View.VISIBLE);
         }
         else{
-            graphicViev.setVisibility (View.INVISIBLE);
+            graphicView.setVisibility (View.INVISIBLE);
         }
     }
 
@@ -262,7 +262,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
     }
 
     public void setGraphicBitmap(Bitmap bitmap){
-        graphicViev.setImageBitmap(bitmap);
+        graphicView.setImageBitmap(bitmap);
     }
 
     class ExportFromDBThread extends Thread {

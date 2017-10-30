@@ -28,29 +28,29 @@
 
     </LinearLayout>
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/status_bar_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
         android:text="@string/status_bar_info">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/is_blinking"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
         android:text="@string/is_blinking">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
-    <CheckBox
+    <android.support.v7.widget.AppCompatCheckBox
         android:id="@+id/is_graphic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="false"
         android:text="@string/is_graphic">
-    </CheckBox>
+    </android.support.v7.widget.AppCompatCheckBox>
 
 
     <ImageView

@@ -26,13 +26,21 @@ import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
-
+    private static Boolean flagReady = true;
     final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
 
     private QuickSharedPreferences quickSharedPreferences;
+
+    public static Boolean isReady(){
+        return flagReady;
+    }
+
+    public static void setReady(Boolean isReady){
+        flagReady = isReady;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -49,6 +57,9 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set temperature to widget
         setTemperature(context,temperature);
         addTemperatureToDB(context,temperature);
+
+        //  receiver task is complete. receiver is ready to new task
+        setReady(true);
     }
 
     private void setTemperature(Context context, int temperature){

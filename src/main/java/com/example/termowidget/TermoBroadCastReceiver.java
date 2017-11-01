@@ -209,25 +209,25 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     enum TermoIcon{
         //  each temperature match icon
-        M31 (-31, R.drawable.m31, R.drawable.m31), M30 (-30, R.drawable.m30, R.drawable.m30),
-        M29 (-29, R.drawable.m29, R.drawable.m29), M28 (-28, R.drawable.m28, R.drawable.m28), M27 (-27, R.drawable.m27, R.drawable.m27), M26 (-26, R.drawable.m26, R.drawable.m26), M25 (-25, R.drawable.m25, R.drawable.m25),
-        M24 (-24, R.drawable.m24, R.drawable.m24), M23 (-23, R.drawable.m23, R.drawable.m23), M22 (-22, R.drawable.m22, R.drawable.m22), M21 (-21, R.drawable.m21, R.drawable.m21), M20 (-20, R.drawable.m20, R.drawable.m20),
-        M19 (-19, R.drawable.m19, R.drawable.m19), M18 (-18, R.drawable.m18, R.drawable.m18), M17 (-17, R.drawable.m17, R.drawable.m17), M16 (-16, R.drawable.m16, R.drawable.m16), M15 (-15, R.drawable.m15, R.drawable.m15),
-        M14 (-14, R.drawable.m14, R.drawable.m14), M13 (-13, R.drawable.m13, R.drawable.m13), M12 (-12, R.drawable.m12, R.drawable.m12), M11 (-11, R.drawable.m11, R.drawable.m11), M10 (-10, R.drawable.m10, R.drawable.m10),
-        M09 (-9, R.drawable.m09, R.drawable.m09), M08 (-8, R.drawable.m08,R.drawable.m08), M07 (-7, R.drawable.m07, R.drawable.m07), M06 (-6, R.drawable.m06, R.drawable.m06), M05 (-5, R.drawable.m05, R.drawable.m05),
-        M04 (-4, R.drawable.m04, R.drawable.m04), M03 (-3, R.drawable.m03, R.drawable.m03), M02 (-2, R.drawable.m02, R.drawable.m02), M01 (-1, R.drawable.m01, R.drawable.m01),
+        M31 (-31, R.drawable.m31, R.drawable.m31_l), M30 (-30, R.drawable.m30, R.drawable.m30_l),
+        M29 (-29, R.drawable.m29, R.drawable.m29_l), M28 (-28, R.drawable.m28, R.drawable.m28_l), M27 (-27, R.drawable.m27, R.drawable.m27_l), M26 (-26, R.drawable.m26, R.drawable.m26_l), M25 (-25, R.drawable.m25, R.drawable.m25_l),
+        M24 (-24, R.drawable.m24, R.drawable.m24_l), M23 (-23, R.drawable.m23, R.drawable.m23_l), M22 (-22, R.drawable.m22, R.drawable.m22_l), M21 (-21, R.drawable.m21, R.drawable.m21_l), M20 (-20, R.drawable.m20, R.drawable.m20_l),
+        M19 (-19, R.drawable.m19, R.drawable.m19_l), M18 (-18, R.drawable.m18, R.drawable.m18_l), M17 (-17, R.drawable.m17, R.drawable.m17_l), M16 (-16, R.drawable.m16, R.drawable.m16_l), M15 (-15, R.drawable.m15, R.drawable.m15_l),
+        M14 (-14, R.drawable.m14, R.drawable.m14_l), M13 (-13, R.drawable.m13, R.drawable.m13_l), M12 (-12, R.drawable.m12, R.drawable.m12_l), M11 (-11, R.drawable.m11, R.drawable.m11_l), M10 (-10, R.drawable.m10, R.drawable.m10_l),
+        M09 (-9, R.drawable.m09, R.drawable.m09_l), M08 (-8, R.drawable.m08,R.drawable.m08_l), M07 (-7, R.drawable.m07, R.drawable.m07_l), M06 (-6, R.drawable.m06, R.drawable.m06_l), M05 (-5, R.drawable.m05, R.drawable.m05_l),
+        M04 (-4, R.drawable.m04, R.drawable.m04_l), M03 (-3, R.drawable.m03, R.drawable.m03_l), M02 (-2, R.drawable.m02, R.drawable.m02_l), M01 (-1, R.drawable.m01, R.drawable.m01_l),
         P00 (0, R.drawable.p00, R.drawable.p00_l),
-        P01 (1, R.drawable.p01, R.drawable.p01), P02 (2, R.drawable.p02, R.drawable.p02), P03 (3, R.drawable.p03, R.drawable.p03), P04 (4, R.drawable.p04, R.drawable.p04), P05 (5, R.drawable.p05, R.drawable.p05),
-        P06 (6, R.drawable.p06, R.drawable.p06), P07 (7, R.drawable.p07, R.drawable.p07), P08 (8, R.drawable.p08, R.drawable.p08), P09 (9, R.drawable.p09, R.drawable.p09), P10 (10, R.drawable.p10, R.drawable.p10),
-        P11 (11, R.drawable.p11, R.drawable.p11), P12 (12, R.drawable.p12, R.drawable.p12), P13 (13, R.drawable.p13, R.drawable.p13), P14 (14, R.drawable.p14, R.drawable.p14), P15 (15, R.drawable.p15, R.drawable.p15),
-        P16 (16, R.drawable.p16, R.drawable.p16), P17 (17, R.drawable.p17, R.drawable.p17), P18 (18, R.drawable.p18, R.drawable.p18), P19 (19, R.drawable.p19, R.drawable.p19), P20 (20, R.drawable.p20, R.drawable.p20),
-        P21 (21, R.drawable.p21, R.drawable.p21), P22 (22, R.drawable.p22, R.drawable.p22), P23 (23, R.drawable.p23, R.drawable.p23), P24 (24, R.drawable.p24, R.drawable.p24), P25 (25, R.drawable.p25, R.drawable.p25),
-        P26 (26, R.drawable.p26, R.drawable.p26), P27 (27, R.drawable.p27, R.drawable.p27), P28 (28, R.drawable.p28, R.drawable.p28), P29 (29, R.drawable.p29, R.drawable.p29), P30 (30, R.drawable.p30, R.drawable.p30),
-        P31 (31, R.drawable.p31, R.drawable.p31), P32 (32, R.drawable.p32, R.drawable.p32), P33 (33, R.drawable.p33, R.drawable.p33), P34 (34, R.drawable.p34, R.drawable.p34), P35 (35, R.drawable.p35, R.drawable.p35),
-        P36 (36, R.drawable.p36, R.drawable.p36), P37 (37, R.drawable.p37, R.drawable.p37), P38 (38, R.drawable.p38, R.drawable.p38), P39 (39, R.drawable.p39, R.drawable.p39), P40 (40, R.drawable.p40, R.drawable.p40),
-        P41 (41, R.drawable.p41, R.drawable.p41), P42 (42, R.drawable.p42, R.drawable.p42), P43 (43, R.drawable.p43, R.drawable.p43), P44 (44, R.drawable.p44, R.drawable.p44), P45 (45, R.drawable.p45, R.drawable.p45),
-        P46 (46, R.drawable.p46, R.drawable.p46), P47 (47, R.drawable.p47, R.drawable.p47), P48 (48, R.drawable.p48, R.drawable.p48), P49 (49, R.drawable.p49, R.drawable.p49), P50 (50, R.drawable.p50, R.drawable.p50),
-        P51 (51, R.drawable.p51, R.drawable.p51);
+        P01 (1, R.drawable.p01, R.drawable.p01_l), P02 (2, R.drawable.p02, R.drawable.p02_l), P03 (3, R.drawable.p03, R.drawable.p03_l), P04 (4, R.drawable.p04, R.drawable.p04_l), P05 (5, R.drawable.p05, R.drawable.p05_l),
+        P06 (6, R.drawable.p06, R.drawable.p06_l), P07 (7, R.drawable.p07, R.drawable.p07_l), P08 (8, R.drawable.p08, R.drawable.p08_l), P09 (9, R.drawable.p09, R.drawable.p09_l), P10 (10, R.drawable.p10, R.drawable.p10_l),
+        P11 (11, R.drawable.p11, R.drawable.p11_l), P12 (12, R.drawable.p12, R.drawable.p12_l), P13 (13, R.drawable.p13, R.drawable.p13_l), P14 (14, R.drawable.p14, R.drawable.p14_l), P15 (15, R.drawable.p15, R.drawable.p15_l),
+        P16 (16, R.drawable.p16, R.drawable.p16_l), P17 (17, R.drawable.p17, R.drawable.p17_l), P18 (18, R.drawable.p18, R.drawable.p18_l), P19 (19, R.drawable.p19, R.drawable.p19_l), P20 (20, R.drawable.p20, R.drawable.p20_l),
+        P21 (21, R.drawable.p21, R.drawable.p21_l), P22 (22, R.drawable.p22, R.drawable.p22_l), P23 (23, R.drawable.p23, R.drawable.p23_l), P24 (24, R.drawable.p24, R.drawable.p24_l), P25 (25, R.drawable.p25, R.drawable.p25_l),
+        P26 (26, R.drawable.p26, R.drawable.p26_l), P27 (27, R.drawable.p27, R.drawable.p27_l), P28 (28, R.drawable.p28, R.drawable.p28_l), P29 (29, R.drawable.p29, R.drawable.p29_l), P30 (30, R.drawable.p30, R.drawable.p30_l),
+        P31 (31, R.drawable.p31, R.drawable.p31_l), P32 (32, R.drawable.p32, R.drawable.p32_l), P33 (33, R.drawable.p33, R.drawable.p33_l), P34 (34, R.drawable.p34, R.drawable.p34_l), P35 (35, R.drawable.p35, R.drawable.p35_l),
+        P36 (36, R.drawable.p36, R.drawable.p36_l), P37 (37, R.drawable.p37, R.drawable.p37_l), P38 (38, R.drawable.p38, R.drawable.p38_l), P39 (39, R.drawable.p39, R.drawable.p39_l), P40 (40, R.drawable.p40, R.drawable.p40_l),
+        P41 (41, R.drawable.p41, R.drawable.p41_l), P42 (42, R.drawable.p42, R.drawable.p42_l), P43 (43, R.drawable.p43, R.drawable.p43_l), P44 (44, R.drawable.p44, R.drawable.p44_l), P45 (45, R.drawable.p45, R.drawable.p45_l),
+        P46 (46, R.drawable.p46, R.drawable.p46_l), P47 (47, R.drawable.p47, R.drawable.p47_l), P48 (48, R.drawable.p48, R.drawable.p48_l), P49 (49, R.drawable.p49, R.drawable.p49_l), P50 (50, R.drawable.p50, R.drawable.p50_l),
+        P51 (51, R.drawable.p51, R.drawable.p51_l);
 
         private final int temperature;
         private final  int icon;

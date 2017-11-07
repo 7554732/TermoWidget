@@ -252,10 +252,6 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         Boolean is_graphic = graphicCheckBox.isChecked();
         quickSharedPreferences.saveBoolean(quickSharedPreferences.GRAPHIC_PREFERENCES_KEY,is_graphic);
         createGraphic();
-
-        //  restart AlarmManager of WidgetUpdaterService with new type
-        TermoWidget.stopAlarmManager(TermoWidget.pIntentWidgetUpdaterService);
-        TermoWidget.setAlarmManager(this);
     }
 
     public void onGraphicClick(View view){

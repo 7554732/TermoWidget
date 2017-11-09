@@ -36,22 +36,19 @@ public class WidgetUpdaterService extends IntentService{
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(TermoBroadCastReceiver.isReady()){
-            TermoBroadCastReceiver.setReady(false);
 
-            //  screen on to receive properly temperature
-            setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
+        //  screen on to receive properly temperature
+        setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
 
-            //  register receiver to catch ACTION_BATTERY_CHANGED
-            this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-            if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
+        //  register receiver to catch ACTION_BATTERY_CHANGED
+        this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
 
-            //  set PendingIntent to start ConfigActivity if WidgetUpdaterService has been runned first time
-            if(isOnClickPendingIntentSet==false){
-                isOnClickPendingIntentSet=true;
-            }
-            setOnClickPendingIntent(this);
+        //  set PendingIntent to start ConfigActivity if WidgetUpdaterService has been runned first time
+        if(isOnClickPendingIntentSet==false){
+            isOnClickPendingIntentSet=true;
         }
+        setOnClickPendingIntent(this);
 
         if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);

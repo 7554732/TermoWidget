@@ -57,9 +57,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set temperature to widget
         setTemperature(context,temperature);
         addTemperatureToDB(context,temperature);
-
-        //  receiver task is complete. receiver is ready to new task
-        setReady(true);
     }
 
     private void setTemperature(Context context, int temperature){

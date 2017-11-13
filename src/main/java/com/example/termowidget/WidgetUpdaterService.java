@@ -61,15 +61,29 @@ public class WidgetUpdaterService extends IntentService{
         if(quickSharedPreferences == null) quickSharedPreferences = new QuickSharedPreferences(context);
 
         if(screenOn == true) {
-            if(wakeLock.isHeld() == false & quickSharedPreferences.isGraphic() == true){
-                wakeLock.acquire();
-                if (isDebug) Log.d(LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+            if(quickSharedPreferences.isGraphic()){
+                acquireWakelock();
             }
         } else {
-            if(wakeLock.isHeld() == true){
-                wakeLock.release();
-                if (isDebug) Log.d(LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
-            }
+            releaseWakelock();
+        }
+    }
+
+    private static void acquireWakelock()
+    {
+        if ((wakeLock != null) && (!wakeLock.isHeld()))
+        {
+            wakeLock.acquire();
+            if (isDebug) Log.d(LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+        }
+    }
+
+    private static void releaseWakelock()
+    {
+        if ((wakeLock != null) && (wakeLock.isHeld()))
+        {
+            wakeLock.release();
+            if (isDebug) Log.d(LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
         }
     }
 

@@ -18,8 +18,6 @@ public class TermoWidget extends AppWidgetProvider {
     public static final String LOG_TAG = "TermoWidget";
 
     private static CircleWidgetUpdater circleWidgetUpdater;
-	
-    private static QuickSharedPreferences quickSharedPreferences;
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

@@ -55,7 +55,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
     private ImageView graphicView;
     private GraphicTask graphicTask;
 
-    private QuickSharedPreferences quickSharedPreferences;
+    private static QuickSharedPreferences quickSharedPreferences;
     private Handler handler;
 
     @Override

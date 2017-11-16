@@ -12,21 +12,21 @@ import static com.example.termowidget.TermoWidget.isDebug;
 
 public class QuickSharedPreferences {
 
-    final static public String  PREFERENCES_FILE_NAME  = "config";
+    public static final String PREFERENCES_FILE_NAME  = "config";
     public static final String  STATUS_BAR_PREFERENCES_KEY  = "status_bar_info";
     public static final String BLINKING_PREFERENCES_KEY = "is_blinking";
     public static final String GRAPHIC_PREFERENCES_KEY = "is_graphic";
 
     public static final String CALIBRATE_PREFERENCES_KEY = "calibration_temperature";
 
-    public static SharedPreferences sharedPreferences;
+    private static SharedPreferences sharedPreferences;
 
     public QuickSharedPreferences(Context context){
         //  set sharedPreferences
         sharedPreferences = context.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
     }
 
-    static public Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{
+    private Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{
 
         //  check preferences key for exist and get it value
         if (sharedPreferences.contains(key)) {
@@ -37,7 +37,7 @@ public class QuickSharedPreferences {
         }
     }
 
-    static public Integer loadPreferences (SharedPreferences sharedPreferences, String key, Integer defaultValue) throws IOException{
+    private Integer loadPreferences (SharedPreferences sharedPreferences, String key, Integer defaultValue) throws IOException{
 
         //  check preferences key for exist and get it value
         if (sharedPreferences.contains(key)) {
@@ -48,13 +48,13 @@ public class QuickSharedPreferences {
         }
     }
 
-    static public void savePreferences(SharedPreferences sharedPreferences, String key, Boolean value){
+    private void savePreferences(SharedPreferences sharedPreferences, String key, Boolean value){
         SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
         preferencesEditor.putBoolean(key, value);
         preferencesEditor.apply();
     }
 
-    static public void savePreferences(SharedPreferences sharedPreferences, String key, Integer value){
+    private void savePreferences(SharedPreferences sharedPreferences, String key, Integer value){
         SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
         preferencesEditor.putInt(key, value);
         preferencesEditor.apply();

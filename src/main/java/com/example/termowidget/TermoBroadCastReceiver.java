@@ -32,7 +32,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
 
-    private QuickSharedPreferences quickSharedPreferences;
+    private static QuickSharedPreferences quickSharedPreferences;
 
     public static Boolean isReady(){
         return flagReady;

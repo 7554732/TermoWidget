@@ -41,6 +41,7 @@ import static com.example.termowidget.GraphicTask.timeToString;
 import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
+import static com.example.termowidget.TermoWidget.quickSharedPreferences;
 
 
 public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
@@ -55,17 +56,12 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
     private ImageView graphicView;
     private GraphicTask graphicTask;
 
-    private static QuickSharedPreferences quickSharedPreferences;
     private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
-
-        //  initialize SharedPreferences
-        quickSharedPreferences = new QuickSharedPreferences(this);
-
 
         // set data for spinner
         final Integer[] calibration_data = new Integer[2*MAX_CALIBRATE_VALUE + 1];

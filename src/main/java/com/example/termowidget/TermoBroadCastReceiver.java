@@ -24,6 +24,7 @@ import java.util.TimerTask;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
+import static com.example.termowidget.TermoWidget.quickSharedPreferences;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
     private static Boolean flagReady = true;
@@ -31,8 +32,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     private static Integer lastTimeAddToDB = 0; // (seconds)
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;
-
-    private static QuickSharedPreferences quickSharedPreferences;
 
     public static Boolean isReady(){
         return flagReady;
@@ -44,8 +43,6 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //  initialize SharedPreferences
-        quickSharedPreferences = new QuickSharedPreferences(context);
         //  get calibration temperature that means difference between environment and battery temperature
         Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
 

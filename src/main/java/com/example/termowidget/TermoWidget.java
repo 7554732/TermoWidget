@@ -20,7 +20,7 @@ public class TermoWidget extends AppWidgetProvider {
     public static final String LOG_TAG = "TermoWidget";
 
     private static CircleWidgetUpdater circleWidgetUpdater;
-    private static QuickSharedPreferences quickSharedPreferences;
+    public static QuickSharedPreferences quickSharedPreferences;
 
     private static Context m_context;
 

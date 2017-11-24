@@ -13,6 +13,7 @@ import android.widget.RemoteViews;
 
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
+import static com.example.termowidget.TermoWidget.quickSharedPreferences;
 
 
 public class WidgetUpdaterService extends IntentService{
@@ -23,8 +24,6 @@ public class WidgetUpdaterService extends IntentService{
 
     private static PowerManager powerManager;
     private static PowerManager.WakeLock wakeLock;
-
-    private static QuickSharedPreferences quickSharedPreferences;
 
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
@@ -58,8 +57,6 @@ public class WidgetUpdaterService extends IntentService{
     public static void setScreenOn(Context context, Boolean screenOn) {
 
         if(screenOn == true) {
-            if(quickSharedPreferences == null) quickSharedPreferences = new QuickSharedPreferences(context);
-
             if(quickSharedPreferences.isGraphic()){
                 acquireWakelock(context);
             }

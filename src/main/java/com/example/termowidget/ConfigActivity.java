@@ -1,10 +1,6 @@
 package com.example.termowidget;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,8 +16,6 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -36,7 +30,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 
-import static android.R.attr.data;
 import static com.example.termowidget.GraphicTask.timeToString;
 import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
 import static com.example.termowidget.TermoWidget.LOG_TAG;

@@ -9,8 +9,6 @@ import android.util.Log;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
-
 //  Widget for Android displays the temperature of the battery
 
 

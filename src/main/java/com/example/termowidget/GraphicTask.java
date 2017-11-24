@@ -11,7 +11,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;

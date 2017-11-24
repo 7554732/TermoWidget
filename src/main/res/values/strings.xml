@@ -15,4 +15,5 @@
     <string name="no">No</string>
     <string name="data_deleted">rows deleted from DB</string>
     <string name="calibrate_tv">Calibrate temperature</string>
+    <string name="update_time_tv">Temperature update time</string>
 </resources>

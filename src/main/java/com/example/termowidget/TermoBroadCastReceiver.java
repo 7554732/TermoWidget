@@ -27,7 +27,7 @@ import static com.example.termowidget.TermoWidget.isDebug;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
     private static Boolean flagReady = true;
-    public static final Integer DIVISOR_ML_SEC = 1000;
+    final static Integer DIVISOR_ML_SEC = 1000;
     private static Integer lastTimeAddToDB = 0; // (seconds)
     private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
     private static Boolean flagAddToDB;

@@ -38,13 +38,13 @@ import java.util.Date;
 
 import static android.R.attr.data;
 import static com.example.termowidget.GraphicTask.timeToString;
+import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 
-    private static final int DIALOG_DELETE_FROM_DB = 1;
     private static final int MAX_CALIBRATE_VALUE = 10;
 
     private static Integer graphicPeriod = 3600;
@@ -67,36 +67,27 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         quickSharedPreferences = new QuickSharedPreferences(this);
 
 
-        // initialize adapter
-        final Integer[] calibrate_data = new Integer[2*MAX_CALIBRATE_VALUE + 1];
+        // set data for spinner
+        final Integer[] calibration_data = new Integer[2*MAX_CALIBRATE_VALUE + 1];
         for(int counter = 0; counter < 2*MAX_CALIBRATE_VALUE + 1; counter++){
-            calibrate_data[counter] = counter - MAX_CALIBRATE_VALUE;
+            calibration_data[counter] = counter - MAX_CALIBRATE_VALUE;
         }
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, calibrate_data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        Spinner spinner = (Spinner) findViewById(R.id.calibrate_spinner);
-        spinner.setAdapter(adapter);
-
-        // title
-        spinner.setPrompt(getString(R.string.calibrate_tv));
-
-        // select spinner position
         Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
-        Integer position = adapter.getPosition(calibrationTemperature);
-        spinner.setSelection(position);
 
-        // set Listener
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Integer calibrationTemperature = calibrate_data[position];
-                quickSharedPreferences.saveInteger(quickSharedPreferences.CALIBRATE_PREFERENCES_KEY,calibrationTemperature);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> arg0) {
-            }
-        });
+        IntSpinnerWraper calibrationSpinner = new IntSpinnerWraper( this,calibration_data, calibrationTemperature,
+                quickSharedPreferences.CALIBRATE_PREFERENCES_KEY,
+                R.id.calibrate_spinner, R.string.calibrate_tv);
+
+
+        // set data for spinner
+        final Integer[] update_time_data = {5, 10, 30, 60};
+
+        Integer update_time = DIVISOR_ML_SEC * quickSharedPreferences.getUpdateTime();
+
+        IntSpinnerWraper updateSpinner = new IntSpinnerWraper( this,update_time_data, update_time,
+                quickSharedPreferences.UPDATE_TIME_PREFERENCES_KEY,
+                R.id.update_time_spinner, R.string.update_time_tv);
 
         //  find statusBar CheckBox
         statusBarCheckBox = (CheckBox) findViewById(R.id.status_bar_info);
@@ -126,6 +117,59 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         handler = new ConfigActivityHandler(this);
 
 
+    }
+
+    class IntSpinnerWraper{
+
+        private ArrayAdapter<Integer> adapter;
+        public Spinner spinner;
+        private Integer position;
+        final Integer[] m_data_array;
+        final String m_preferences_key;
+
+        public IntSpinnerWraper(Context context, final Integer[] data_array, int current_value, final String preferences_key, int viewId, int stringRes) {
+            m_data_array = data_array;
+            m_preferences_key = preferences_key;
+
+            initAdapter(context);
+            initSpinner(current_value, viewId, stringRes);
+
+        }
+
+        private void initAdapter(Context context){
+            adapter = new ArrayAdapter<Integer>(context, android.R.layout.simple_spinner_item, m_data_array);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        }
+
+        private void initSpinner(int current_value, int viewId, int stringRes) {
+
+            //  find Spinner
+            spinner = (Spinner) findViewById(viewId);
+            spinner.setAdapter(adapter);
+
+            // title
+            spinner.setPrompt(getString(stringRes));
+
+            // select spinner position
+            position = adapter.getPosition(current_value);
+            spinner.setSelection(position);
+
+            setOnItemSelectedListener();
+        }
+
+        private void setOnItemSelectedListener() {
+            // set Listener
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    Integer value = m_data_array[position];
+                    quickSharedPreferences.saveInteger(m_preferences_key, value);
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> arg0) {
+                }
+            });
+        }
     }
 
     private View.OnClickListener chBoxListener = new View.OnClickListener()
@@ -202,6 +246,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
     private void createGraphic() {
         Boolean is_graphic = quickSharedPreferences.isGraphic();
+        if (isDebug) Log.d(LOG_TAG, "is_graphic " + is_graphic);
         graphicTask = (GraphicTask) getLastNonConfigurationInstance();
 
         if (graphicTask != null) {
@@ -251,6 +296,8 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
     public void onGraphicChBoxClick(View view){
         Boolean is_graphic = graphicCheckBox.isChecked();
         quickSharedPreferences.saveBoolean(quickSharedPreferences.GRAPHIC_PREFERENCES_KEY,is_graphic);
+
+        if (isDebug) Log.d(LOG_TAG, "is_graphic " + is_graphic);
         createGraphic();
     }
 
@@ -288,7 +335,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
             // get current time
             Date curDate = new Date();
-            Integer curTime =(int) (curDate.getTime()/TermoBroadCastReceiver.DIVISOR_ML_SEC);
+            Integer curTime =(int) (curDate.getTime()/ DIVISOR_ML_SEC);
 
             //  convert number of seconds to time string
             String curTimeString = timeToString(curTime,"yyyy-MM-dd-HH-mm-ss");

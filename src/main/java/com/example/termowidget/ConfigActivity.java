@@ -72,9 +72,10 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         // set data for spinner
         final Integer[] update_time_data = {5, 10, 30, 60};
 
-        Integer update_time = DIVISOR_ML_SEC * quickSharedPreferences.getUpdateTime();
+        Integer update_time = quickSharedPreferences.getUpdateTime();
+        Integer spinner_value = update_time/DIVISOR_ML_SEC;
 
-        IntSpinnerWraper updateSpinner = new IntSpinnerWraper( this,update_time_data, update_time,
+        IntSpinnerWraper updateSpinner = new IntSpinnerWraper( this,update_time_data, spinner_value,
                 quickSharedPreferences.UPDATE_TIME_PREFERENCES_KEY,
                 R.id.update_time_spinner, R.string.update_time_tv);
 

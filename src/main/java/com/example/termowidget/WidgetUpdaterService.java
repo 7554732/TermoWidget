@@ -43,12 +43,6 @@ public class WidgetUpdaterService extends IntentService{
         this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
 
-        //  set PendingIntent to start ConfigActivity if WidgetUpdaterService has been runned first time
-        if(isOnClickPendingIntentSet==false){
-            isOnClickPendingIntentSet=true;
-        }
-        setOnClickPendingIntent(this);
-
         if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);
     }
@@ -99,22 +93,4 @@ public class WidgetUpdaterService extends IntentService{
         super.onDestroy();
     }
 
-    private void  setOnClickPendingIntent(Context context){
-
-        //  create PendingIntent from Intent to start ConfigActivity
-        Intent configIntent = new Intent(context, ConfigActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        //  get RemoteViews by package name
-        RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
-
-        widgetView.setOnClickPendingIntent(R.id.widget_layout, pendingIntent);
-        //  get widget menager
-        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-        //  update widget
-        ComponentName componentName = new ComponentName(context,TermoWidget.class);
-        appWidgetManager.updateAppWidget(componentName, widgetView);
-
-        if (isDebug) Log.d(LOG_TAG , "PendingIntent set");
-    }
 }

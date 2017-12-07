@@ -11,6 +11,10 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.util.Date;
+
+import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
+import static com.example.termowidget.TermoBroadCastReceiver.isTimeAddToDB;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
 import static com.example.termowidget.TermoWidget.quickSharedPreferences;
@@ -18,15 +22,18 @@ import static com.example.termowidget.TermoWidget.quickSharedPreferences;
 
 public class WidgetUpdaterService extends IntentService{
 
-    static private TermoBroadCastReceiver termoBroadCastReceiver = new TermoBroadCastReceiver() ;
+    private static final Integer WAIT_FOR_RECEIVER_READY = 300;
 
-    private static Boolean isOnClickPendingIntentSet =false;
+    private Date date = new Date();
+    private static Integer registerReceiverTime;
+    private static TermoBroadCastReceiver termoBroadCastReceiver = new TermoBroadCastReceiver() ;
 
     private static PowerManager powerManager;
     private static PowerManager.WakeLock wakeLock;
 
     public WidgetUpdaterService(){
         super("WidgetUpdaterService");
+        registerReceiverTime = (int) (date.getTime()/DIVISOR_ML_SEC);
     }
 
     @Override
@@ -36,12 +43,22 @@ public class WidgetUpdaterService extends IntentService{
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        //  screen on to receive properly temperature
-        setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
+        Integer curTime =(int) (date.getTime()/DIVISOR_ML_SEC);
+        Integer secondsFromLastRegisterReceiver = curTime - registerReceiverTime;
 
-        //  register receiver to catch ACTION_BATTERY_CHANGED
-        this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
+        if( TermoBroadCastReceiver.isReady()
+            || (secondsFromLastRegisterReceiver >= WAIT_FOR_RECEIVER_READY )){
+
+            //  screen on to receive properly temperature
+            setScreenOn(this, isTimeAddToDB());
+
+            //  register receiver to catch ACTION_BATTERY_CHANGED
+            this.registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+            registerReceiverTime = curTime;
+            TermoBroadCastReceiver.setReady(false);
+            if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver registered");
+
+        }
 
         if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);

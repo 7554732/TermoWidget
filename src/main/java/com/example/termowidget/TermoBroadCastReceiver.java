@@ -54,6 +54,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set temperature to widget
         setTemperature(context,temperature);
         addTemperatureToDB(context,temperature);
+        setReady(true);
     }
 
     private void setTemperature(Context context, int temperature){

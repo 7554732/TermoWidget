@@ -11,7 +11,7 @@ import static com.example.termowidget.TermoWidget.isDebug;
 
 public class ScreenStateService extends Service {
 
-    static private ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
+    private static ScreenStateReceiver screenStateReceiver = new ScreenStateReceiver();
 
     @Override
     public void onCreate() {
@@ -21,14 +21,17 @@ public class ScreenStateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        //  register reciver to catch ACTION_SCREEN_ON
         try {
             this.unregisterReceiver(screenStateReceiver);
+            if (isDebug) Log.d(LOG_TAG , "screenStateReceiver unregistered");
         }
         catch (Exception e){
-            this.registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
-            if (isDebug) Log.w(LOG_TAG , "screenStateReceiver  registered");
+            if (isDebug) Log.w(LOG_TAG , "screenStateReceiver is not registered");
         }
+
+        //  register receiver to catch ACTION_SCREEN_ON
+        this.registerReceiver(screenStateReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+        if (isDebug) Log.w(LOG_TAG , "screenStateReceiver  registered");
 
         if (isDebug) Log.d(LOG_TAG , "ScreenStateService Started");
 

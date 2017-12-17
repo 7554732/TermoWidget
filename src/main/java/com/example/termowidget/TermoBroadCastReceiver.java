@@ -24,35 +24,44 @@ import java.util.TimerTask;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
-import static com.example.termowidget.TermoWidget.quickSharedPreferences;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
-    private static Boolean flagReady = true;
-    public static final Integer DIVISOR_ML_SEC = 1000;
-    private static Integer lastTimeAddToDB = 0; // (seconds)
-    private static final Integer MIN_PERIOD_ADD_TO_DB = 300; //(seconds) minimum period between adding temperature to DB
-    private static Boolean flagAddToDB;
 
-    public static Boolean isReady(){
+    public static final int DIVISOR_ML_SEC = 1000;  //  multiplier to convert between seconds and milliseconds
+    private static final int MIN_PERIOD_ADD_TO_DB = 300; // (seconds) minimum period between adding temperature to DB
+
+    private static final int BLINK_DELAY_FIRST_TIME = 500;    //  (milliseconds) before first blink
+    private static final int BLINK_DELAY_TIME = 500;    //  (milliseconds) between blinks
+
+    private static int lastTimeAddToDB = 0; // (seconds)
+    private static boolean flagReady = true;
+    private static boolean flagAddToDB = false;
+
+    private QuickSharedPreferences quickSharedPreferences;
+
+    public static boolean isReady(){
         return flagReady;
     }
 
-    public static void setReady(Boolean isReady){
+    public static void setReady(boolean isReady){
         flagReady = isReady;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(context);
         //  get calibration temperature that means difference between environment and battery temperature
-        Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
+        int calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
 
         //  get battery temperature from intent extra
-        Integer batteryTemperature = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
+        int batteryTemperature = (int)(intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0))/10;
         //  calculate environment temperature
-        Integer temperature = batteryTemperature + calibrationTemperature;
+        int temperature = batteryTemperature + calibrationTemperature;
 
         //  set temperature to widget
         setTemperature(context,temperature);
+
         addTemperatureToDB(context,temperature);
         setReady(true);
     }
@@ -62,21 +71,29 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
         //  set temperature string
         widgetView.setTextViewText(R.id.tvTemperature,Integer.toString(temperature)+context.getString(R.string.degree));
-
         //  set color for widget text
         widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(temperature)));
 
         if (isDebug) Log.d(LOG_TAG , "temperature "+temperature);
 
         //  widget blinking
-        Blinker blinker = new Blinker(context);
-        blinker.schedule();
+        scheduleBlinker(context);
 
         //  update widget
         updateWidget(context,widgetView);
 
         //  set temperature to status bar
         setIconToStatusBar(context,temperature);
+    }
+
+    private void scheduleBlinker(Context context){
+        Blinker blinker = new Blinker(context);
+        Timer timer = new Timer();
+        //  get blinking status
+        //  schedule timer if blinking is on
+        if(quickSharedPreferences.isBlinking()){
+            timer.schedule(blinker, BLINK_DELAY_FIRST_TIME, BLINK_DELAY_TIME);
+        }
     }
 
     enum TermoColor{
@@ -121,19 +138,14 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     private class Blinker extends TimerTask {
 
-        private Context m_context;
+        private Context context;
 
         private int counterExecution = 0;
-        final private  int SECOND_EXECUTION = 2;
-
-        final private int DELAY_FIRST_TIME;
-        final private int BLINK_DELAY_TIME;
-
-        private Timer timer = new Timer();
+        private final int SECOND_EXECUTION = 2;
 
         public void run(){
             //  get RemoteViews by package name
-            RemoteViews widgetView = new RemoteViews(m_context.getPackageName(), R.layout.widget);
+            RemoteViews widgetView = new RemoteViews(context.getPackageName(), R.layout.widget);
 
             if (++counterExecution >= SECOND_EXECUTION){
                 //  set visible
@@ -147,28 +159,17 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
             }
 
             //  update widget
-            updateWidget(m_context,widgetView);
+            updateWidget(context,widgetView);
         }
 
-        public Blinker(Context context){
-            m_context=context;
-            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
-            BLINK_DELAY_TIME = m_context.getResources().getInteger(R.integer.BLINK_DELAY_TIME);
-        }
-
-        //  schedule itself using local constants
-        public void schedule(){
-            //  get blinking status
-            //  schedule timer if blinking is on
-            if(quickSharedPreferences.isBlinking()){
-                timer.schedule(this, DELAY_FIRST_TIME, BLINK_DELAY_TIME);
-            }
+        public Blinker(Context arg_context){
+            context=arg_context;
         }
     }
 
     private void setIconToStatusBar(Context context, int temperature){
 
-        Integer NOTIFICATION_ID = 1;
+        int NOTIFICATION_ID = 1;
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
         if(quickSharedPreferences.isBlinking()){
             mNotifyMgr.cancel(NOTIFICATION_ID);
@@ -265,7 +266,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         if (flagAddToDB){
 
             Date date = new Date();
-            Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
+            int curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
 
             //  create data object to insert in DB
             ContentValues contentValues = new ContentValues();
@@ -281,10 +282,10 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
     }
 
     //  check time for adding data to DB
-    public static Boolean isTimeAddToDB() {
+    public static boolean isTimeAddToDB() {
         Date date = new Date();
-        Integer curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
-        Integer secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
+        int curTimeAddToDB =(int) (date.getTime()/DIVISOR_ML_SEC);
+        int secondsFromLastAddToDB = curTimeAddToDB - lastTimeAddToDB;
 
         if (secondsFromLastAddToDB >= MIN_PERIOD_ADD_TO_DB ) {
             lastTimeAddToDB = curTimeAddToDB;
@@ -295,20 +296,20 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
     //	insert to DB in separate thread
     class AddToDBThread extends Thread {
-        private Context m_context;
-        private ContentValues m_contentValues;
-        AddToDBThread(Context context, ContentValues contentValues){
-            m_context = context;
-            m_contentValues = contentValues;
+        private Context context;
+        private ContentValues contentValues;
+        AddToDBThread(Context arg_context, ContentValues arg_contentValues){
+            context = arg_context;
+            contentValues = arg_contentValues;
         }
         public void run(){
             //  connect to DB
-            DBHelper dbHelper = new DBHelper(m_context);
+            DBHelper dbHelper = new DBHelper(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             // insert row to DB and receive it ID
-            long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, m_contentValues);
-            if (isDebug) Log.d(LOG_TAG , "Add To DB " + m_contentValues.toString() );
+            long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, contentValues);
+            if (isDebug) Log.d(LOG_TAG , "Add To DB " + contentValues.toString() );
 
             //  close connection to DB
             dbHelper.close();

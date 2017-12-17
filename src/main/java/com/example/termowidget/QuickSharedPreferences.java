@@ -1,6 +1,7 @@
 package com.example.termowidget;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -10,7 +11,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
-import static com.example.termowidget.TermoWidget.startCircleWidgetUpdater;
+import static com.example.termowidget.WidgetUpdaterService.MIN_UPDATE_TIME;
 
 public class QuickSharedPreferences {
 
@@ -23,7 +24,7 @@ public class QuickSharedPreferences {
     public static final String UPDATE_TIME_PREFERENCES_KEY = "update_time";
 
     private static SharedPreferences sharedPreferences;
-    private Context m_context;
+    private Context mContext;
 
     private static Integer calibrationTemperature;
     private static Integer updateTime;
@@ -33,13 +34,12 @@ public class QuickSharedPreferences {
     private static Boolean is_blinking;
 
     public QuickSharedPreferences(Context context){
-        m_context = context;
+        mContext = context;
         //  set sharedPreferences
         sharedPreferences = context.getSharedPreferences(PREFERENCES_FILE_NAME, MODE_PRIVATE);
     }
 
-    private Boolean loadPreferences (SharedPreferences sharedPreferences, String key, Boolean defaultValue) throws IOException{
-
+    private boolean loadPreferences (SharedPreferences sharedPreferences, String key, boolean defaultValue) throws IOException{
         //  check preferences key for exist and get it value
         if (sharedPreferences.contains(key)) {
             return  sharedPreferences.getBoolean(key, defaultValue);
@@ -49,8 +49,7 @@ public class QuickSharedPreferences {
         }
     }
 
-    private Integer loadPreferences (SharedPreferences sharedPreferences, String key, Integer defaultValue) throws IOException{
-
+    private int loadPreferences (SharedPreferences sharedPreferences, String key, int defaultValue) throws IOException{
         //  check preferences key for exist and get it value
         if (sharedPreferences.contains(key)) {
             return  sharedPreferences.getInt(key, defaultValue);
@@ -60,19 +59,19 @@ public class QuickSharedPreferences {
         }
     }
 
-    private void savePreferences(SharedPreferences sharedPreferences, String key, Boolean value){
+    private void savePreferences(SharedPreferences sharedPreferences, String key, boolean value){
         SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
         preferencesEditor.putBoolean(key, value);
         preferencesEditor.apply();
     }
 
-    private void savePreferences(SharedPreferences sharedPreferences, String key, Integer value){
+    private void savePreferences(SharedPreferences sharedPreferences, String key, int value){
         SharedPreferences.Editor preferencesEditor = sharedPreferences.edit();
         preferencesEditor.putInt(key, value);
         preferencesEditor.apply();
     }
 
-    public void saveBoolean (String key, Boolean value){
+    public void saveBoolean (String key, boolean value){
         savePreferences(sharedPreferences, key, value);
         switch (key){
             case STATUS_BAR_PREFERENCES_KEY:
@@ -87,7 +86,7 @@ public class QuickSharedPreferences {
         }
     }
 
-    public void saveInteger (String key, Integer value){
+    public void saveInteger (String key, int value){
         switch (key){
             case CALIBRATE_PREFERENCES_KEY:
                 calibrationTemperature = value;
@@ -95,13 +94,13 @@ public class QuickSharedPreferences {
             case UPDATE_TIME_PREFERENCES_KEY:
                 value *= DIVISOR_ML_SEC;
                 updateTime = value;
-                startCircleWidgetUpdater(updateTime);
+                mContext.startService(new Intent(mContext,WidgetUpdaterService.class));
                 break;
         }
         savePreferences(sharedPreferences, key, value);
     }
 
-    public Integer getCalibrationTemperature() {
+    public int getCalibrationTemperature() {
         if (calibrationTemperature == null){
             try {
                 calibrationTemperature = loadPreferences(sharedPreferences, CALIBRATE_PREFERENCES_KEY, 0);
@@ -113,19 +112,19 @@ public class QuickSharedPreferences {
         return calibrationTemperature;
     }
 
-    public Integer getUpdateTime() {
+    public int getUpdateTime() {
         if (updateTime == null){
             try {
-                updateTime = loadPreferences(sharedPreferences, UPDATE_TIME_PREFERENCES_KEY,  m_context.getResources().getInteger(R.integer.UPDATE_TIME));
+                updateTime = loadPreferences(sharedPreferences, UPDATE_TIME_PREFERENCES_KEY,  MIN_UPDATE_TIME);
             } catch (IOException e) {
                 if (isDebug) Log.w(LOG_TAG, e.toString());
-                updateTime =  m_context.getResources().getInteger(R.integer.UPDATE_TIME);
+                updateTime = MIN_UPDATE_TIME;
             }
         }
         return updateTime;
     }
 
-    public Boolean isStatusBar() {
+    public boolean isStatusBar() {
         if(is_status_bar == null){
             try {
                 is_status_bar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
@@ -137,7 +136,7 @@ public class QuickSharedPreferences {
         return is_status_bar;
     }
 
-    public Boolean isBlinking() {
+    public boolean isBlinking() {
         if(is_blinking == null) {
             try {
                 is_blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
@@ -149,7 +148,7 @@ public class QuickSharedPreferences {
         return is_blinking;
     }
 
-    public Boolean isGraphic() {
+    public boolean isGraphic() {
         if(is_graphic == null){
             try {
                 is_graphic = loadPreferences(sharedPreferences, GRAPHIC_PREFERENCES_KEY, true);

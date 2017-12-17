@@ -20,26 +20,15 @@ public class TermoWidget extends AppWidgetProvider {
     public static final boolean isDebug = true;
     public static final String LOG_TAG = "TermoWidget";
 
-    private static CircleWidgetUpdater circleWidgetUpdater;
-    public static QuickSharedPreferences quickSharedPreferences;
-
-    private static Context m_context;
-
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        m_context = context;
         super.onUpdate(context, appWidgetManager, appWidgetIds);
 
         //  set PendingIntent to start ConfigActivity
         setOnClickPendingIntent(context);
 
-        //  initialize SharedPreferences
-        quickSharedPreferences = new QuickSharedPreferences(context);
-
-        Integer update_time = quickSharedPreferences.getUpdateTime();
-
-        //  start  permanently widget update
-        startCircleWidgetUpdater(update_time);
+        //  start  WidgetUpdaterService
+        context.startService(new Intent(context,WidgetUpdaterService.class));
 
         //  start ScreenStateService  to catch ACTION_SCREEN_ON
         context.startService(new Intent(context, ScreenStateService.class));
@@ -52,61 +41,17 @@ public class TermoWidget extends AppWidgetProvider {
     @Override
     public void onDisabled(Context context) {
         super.onDisabled(context);
+
         //  stop ScreenStateService
         context.stopService(new Intent(context, ScreenStateService.class));
-        //  stop permanently widget update
-        stopCircleWidgetUpdater();
+
+        //  stop WidgetUpdaterService
+        context.stopService(new Intent(context,WidgetUpdaterService.class));
+
         if (isDebug) Log.d(LOG_TAG, "TermoWidget Disabled");
     }
 
-    private static void stopCircleWidgetUpdater(){
-        try{
-            circleWidgetUpdater.cancel();
-            if (isDebug) Log.d(LOG_TAG, "circleWidgetUpdater canceled");
-        }
-        catch(Exception e){
-            if (isDebug) Log.d(LOG_TAG, "circleWidgetUpdater does not exist");
-        }
-    }
-
-    public static void startCircleWidgetUpdater(Integer update_time){
-        //  stop permanently widget update
-        stopCircleWidgetUpdater();
-
-        //  run permanently widget update
-        circleWidgetUpdater = new CircleWidgetUpdater(update_time);
-        circleWidgetUpdater.schedule();
-    }
-
-    private static class CircleWidgetUpdater extends TimerTask {
-
-        final private int DELAY_FIRST_TIME;
-        final private int UPDATE_TIME;
-
-        private Timer timer = new Timer();
-
-        //   Restart WidgetUpdaterService to get new temperature
-        public void run(){
-            m_context.startService(new Intent(m_context,WidgetUpdaterService.class));
-        }
-
-        public CircleWidgetUpdater(Integer update_time){
-            if(update_time >  m_context.getResources().getInteger(R.integer.UPDATE_TIME)){
-                UPDATE_TIME = update_time;
-            }
-            else{
-                UPDATE_TIME = m_context.getResources().getInteger(R.integer.UPDATE_TIME);
-            }
-            DELAY_FIRST_TIME = m_context.getResources().getInteger(R.integer.DELAY_FIRST_TIME);
-        }
-
-        //  schedule itself using local constants
-        public void schedule(){
-            timer.schedule(this, DELAY_FIRST_TIME, UPDATE_TIME);
-        }
-    }
     private void  setOnClickPendingIntent(Context context){
-
         //  create PendingIntent from Intent to start ConfigActivity
         Intent configIntent = new Intent(context, ConfigActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, configIntent, PendingIntent.FLAG_UPDATE_CURRENT);

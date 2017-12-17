@@ -34,19 +34,20 @@ import static com.example.termowidget.GraphicTask.timeToString;
 import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
 import static com.example.termowidget.TermoWidget.LOG_TAG;
 import static com.example.termowidget.TermoWidget.isDebug;
-import static com.example.termowidget.TermoWidget.quickSharedPreferences;
-
 
 public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 
     private static final int MAX_CALIBRATE_VALUE = 10;
 
-    private static Integer graphicPeriod = 3600;
+    private static final int graphicPeriod = 3600;
+
+    private QuickSharedPreferences quickSharedPreferences;
 
     private CheckBox statusBarCheckBox;
     private CheckBox blinkingCheckBox;
     private CheckBox graphicCheckBox;
     private ImageView graphicView;
+
     private GraphicTask graphicTask;
 
     private Handler handler;
@@ -56,13 +57,16 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.config);
 
+        //  initialize SharedPreferences
+        quickSharedPreferences = new QuickSharedPreferences(this);
+
         // set data for spinner
         final Integer[] calibration_data = new Integer[2*MAX_CALIBRATE_VALUE + 1];
         for(int counter = 0; counter < 2*MAX_CALIBRATE_VALUE + 1; counter++){
             calibration_data[counter] = counter - MAX_CALIBRATE_VALUE;
         }
 
-        Integer calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
+        int calibrationTemperature = quickSharedPreferences.getCalibrationTemperature();
 
         IntSpinnerWraper calibrationSpinner = new IntSpinnerWraper( this,calibration_data, calibrationTemperature,
                 quickSharedPreferences.CALIBRATE_PREFERENCES_KEY,
@@ -72,8 +76,8 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         // set data for spinner
         final Integer[] update_time_data = {5, 10, 30, 60};
 
-        Integer update_time = quickSharedPreferences.getUpdateTime();
-        Integer spinner_value = update_time/DIVISOR_ML_SEC;
+        int update_time = quickSharedPreferences.getUpdateTime();
+        int spinner_value = update_time/DIVISOR_ML_SEC;
 
         IntSpinnerWraper updateSpinner = new IntSpinnerWraper( this,update_time_data, spinner_value,
                 quickSharedPreferences.UPDATE_TIME_PREFERENCES_KEY,
@@ -113,13 +117,13 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
         private ArrayAdapter<Integer> adapter;
         public Spinner spinner;
-        private Integer position;
-        final Integer[] m_data_array;
-        final String m_preferences_key;
+        private int position;
+        final Integer[] data_array;
+        final String preferences_key;
 
-        public IntSpinnerWraper(Context context, final Integer[] data_array, int current_value, final String preferences_key, int viewId, int stringRes) {
-            m_data_array = data_array;
-            m_preferences_key = preferences_key;
+        public IntSpinnerWraper(Context context, final Integer[] arg_data_array, int current_value, final String arg_preferences_key, int viewId, int stringRes) {
+            data_array = arg_data_array;
+            preferences_key = arg_preferences_key;
 
             initAdapter(context);
             initSpinner(current_value, viewId, stringRes);
@@ -127,7 +131,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         }
 
         private void initAdapter(Context context){
-            adapter = new ArrayAdapter<Integer>(context, android.R.layout.simple_spinner_item, m_data_array);
+            adapter = new ArrayAdapter<Integer>(context, android.R.layout.simple_spinner_item, data_array);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         }
 
@@ -152,8 +156,8 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Integer value = m_data_array[position];
-                    quickSharedPreferences.saveInteger(m_preferences_key, value);
+                    int value = data_array[position];
+                    quickSharedPreferences.saveInteger(preferences_key, value);
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> arg0) {
@@ -300,10 +304,10 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
     class ExportFromDBThread extends Thread {
         private static final String DIR_SD = "TermoExport";
-        private Context m_context;
+        private Context context;
         private File sdFile;
-        ExportFromDBThread(Context context){
-            m_context = context;
+        ExportFromDBThread(Context arg_context){
+            context = arg_context;
 
             // get path to SD
             File sdPath = Environment.getExternalStorageDirectory();
@@ -325,7 +329,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
             // get current time
             Date curDate = new Date();
-            Integer curTime =(int) (curDate.getTime()/ DIVISOR_ML_SEC);
+            int curTime =(int) (curDate.getTime()/ DIVISOR_ML_SEC);
 
             //  convert number of seconds to time string
             String curTimeString = timeToString(curTime,"yyyy-MM-dd-HH-mm-ss");
@@ -335,24 +339,24 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
         }
         public void run(){
             //  connect to DB
-            DBHelper dbHelper = new DBHelper(m_context);
+            DBHelper dbHelper = new DBHelper(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             // query all data from TERMO TABLE
             Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, null, null, null, null, null);
-            Integer idColIndex = cursor.getColumnIndex(DBHelper.ID_TERMO_ROW_NAME);
-            Integer dateColIndex = cursor.getColumnIndex(DBHelper.DATE_TERMO_ROW_NAME);
-            Integer temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
+            int idColIndex = cursor.getColumnIndex(DBHelper.ID_TERMO_ROW_NAME);
+            int dateColIndex = cursor.getColumnIndex(DBHelper.DATE_TERMO_ROW_NAME);
+            int temperatureColIndex = cursor.getColumnIndex(DBHelper.TEMPERATURE_TERMO_ROW_NAME);
 
             // set cursor position on the first line
             // if no one line return false
-            Integer counterExportedStrings=0;
+            int counterExportedStrings=0;
             if (cursor.moveToFirst()) {
                 do{
-                    Integer id = cursor.getInt(idColIndex);
-                    Integer time = cursor.getInt(dateColIndex);
+                    int id = cursor.getInt(idColIndex);
+                    int time = cursor.getInt(dateColIndex);
                     String timeString = timeToString(time,"yyyy-MM-dd HH:mm:ss");
-                    Integer temperature = cursor.getInt(temperatureColIndex);
+                    int temperature = cursor.getInt(temperatureColIndex);
                     String exportString = DBHelper.ID_TERMO_ROW_NAME + " : " + id + " "
                                         + DBHelper.DATE_TERMO_ROW_NAME + " : " + timeString + " "
                                         + DBHelper.TEMPERATURE_TERMO_ROW_NAME + " : " + temperature;
@@ -368,7 +372,7 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
             dbHelper.close();
 
             //  send message to createToast
-            String msgString =  counterExportedStrings + " " + m_context.getString(R.string.file_export) + " " +  sdFile.getAbsolutePath();
+            String msgString =  counterExportedStrings + " " + context.getString(R.string.file_export) + " " +  sdFile.getAbsolutePath();
             Message message = handler.obtainMessage();
             message.obj = msgString;
             handler.sendMessage(message);
@@ -428,24 +432,25 @@ public class ConfigActivity extends FragmentActivity implements DelDataDialogFra
 
     private class DeleteFromDBThread extends Thread {
 
-        private Context m_context;
+        private Context context;
 
-        DeleteFromDBThread(Context context) {
-            m_context = context;
+        DeleteFromDBThread(Context arg_context) {
+            context = arg_context;
         }
+
         public void run(){
             //  connect to DB
-            DBHelper dbHelper = new DBHelper(m_context);
+            DBHelper dbHelper = new DBHelper(context);
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             // delete all data from TERMO TABLE
-            Integer numberOfDeletedRows  = db.delete(DBHelper.TERMO_TABLE_NAME, null, null);
+            int numberOfDeletedRows  = db.delete(DBHelper.TERMO_TABLE_NAME, null, null);
 
             //  close connection to DB
             dbHelper.close();
 
             //  send message to createToast
-            String msgString = numberOfDeletedRows + " " +  m_context.getString(R.string.data_deleted);
+            String msgString = numberOfDeletedRows + " " +  context.getString(R.string.data_deleted);
             Message message = handler.obtainMessage();
             message.obj = msgString;
             handler.sendMessage(message);

@@ -38,7 +38,7 @@ public class WidgetUpdaterService extends Service {
     private CircleWidgetUpdater circleWidgetUpdater;
 
     private static PowerManager powerManager;
-    private static PowerManager.WakeLock wakeLock;
+    public static PowerManager.WakeLock wakeLock;
 
     @Override
     public void onCreate() {

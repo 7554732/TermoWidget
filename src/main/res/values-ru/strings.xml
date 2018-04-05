@@ -1,0 +1,15 @@
+<resources>
+    <string name="status_bar_info">Показывать температуру в статус-баре</string>
+    <string name="is_blinking">Blinking</string>
+    <string name="is_graphic">Показывать температурный график \n(батарея разряжается быстрее)</string>
+    <string name="export_data">Экспорт данных</string>
+    <string name="delete_data">Удалить данные</string>
+    <string name="file_export">строк записано на карту памяти: </string>
+    <string name="del_data_title">Удалить данные</string>
+    <string name="del_data_mes">Удалить все данные?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="data_deleted">записей удалено</string>
+    <string name="calibrate_tv">Калибровка температуры</string>
+    <string name="update_time_tv">Время обновления температуры</string>
+</resources>

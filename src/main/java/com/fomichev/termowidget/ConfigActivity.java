@@ -23,8 +23,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.termowidget.R;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

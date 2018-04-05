@@ -13,8 +13,6 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.termowidget.R;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

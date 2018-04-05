@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.example.termowidget.R;
-
 //  Widget for Android displays the temperature of the battery
 
 

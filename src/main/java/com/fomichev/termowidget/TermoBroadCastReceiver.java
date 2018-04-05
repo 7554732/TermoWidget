@@ -17,8 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.example.termowidget.R;
-
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;

@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,13 +17,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
+import com.example.termowidget.R;
+
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
 
 public class TermoBroadCastReceiver extends BroadcastReceiver {
 
@@ -74,7 +74,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         //  set color for widget text
         widgetView.setTextColor(R.id.tvTemperature,context.getResources().getColor(TermoColor.getColor(temperature)));
 
-        if (isDebug) Log.d(LOG_TAG , "temperature "+temperature);
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "temperature "+temperature);
 
         //  widget blinking
         scheduleBlinker(context);
@@ -133,7 +133,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         //  update widget
         appWidgetManager.updateAppWidget(componentName, widgetView);
-        if (isDebug) Log.d(LOG_TAG , "updateWidget "+componentName);
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "updateWidget "+componentName);
     }
 
     private class Blinker extends TimerTask {
@@ -309,7 +309,7 @@ public class TermoBroadCastReceiver extends BroadcastReceiver {
 
             // insert row to DB and receive it ID
             long rowID = db.insert(DBHelper.TERMO_TABLE_NAME, null, contentValues);
-            if (isDebug) Log.d(LOG_TAG , "Add To DB " + contentValues.toString() );
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "Add To DB " + contentValues.toString() );
 
             //  close connection to DB
             dbHelper.close();

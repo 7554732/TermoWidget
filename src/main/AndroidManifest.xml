@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.termowidget">
+    package="com.fomichev.termowidget">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name= "android.permission.WAKE_LOCK"  />
@@ -11,11 +11,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true">
-        <service android:name=".WidgetUpdaterService" />
-        <service android:name=".ScreenStateService" />
+        <service android:name="com.fomichev.termowidget.WidgetUpdaterService" />
+        <service android:name="com.fomichev.termowidget.ScreenStateService" />
 
         <receiver
-            android:name=".TermoWidget"
+            android:name="com.fomichev.termowidget.TermoWidget"
             android:icon="@mipmap/ic_launcher_round"
             android:label="@string/widget_name">
             <intent-filter>
@@ -27,11 +27,11 @@
                 android:resource="@xml/widget_metadata" />
         </receiver>
 
-        <receiver android:name=".ScreenStateReceiver" />
-        <receiver android:name=".TermoBroadCastReceiver" />
+        <receiver android:name="com.fomichev.termowidget.ScreenStateReceiver" />
+        <receiver android:name="com.fomichev.termowidget.TermoBroadCastReceiver" />
 
         <activity
-            android:name="ConfigActivity"
+            android:name="com.fomichev.termowidget.ConfigActivity"
             android:theme="@style/AppTheme">
         </activity>
     </application>

@@ -1,26 +1,16 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
-import android.app.IntentService;
-import android.app.PendingIntent;
 import android.app.Service;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
-import static com.example.termowidget.TermoBroadCastReceiver.isTimeAddToDB;
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class WidgetUpdaterService extends Service {
@@ -47,7 +37,7 @@ public class WidgetUpdaterService extends Service {
         //  initialize SharedPreferences
         quickSharedPreferences = new QuickSharedPreferences(this);
 
-        registerReceiverTime = (int) (date.getTime()/DIVISOR_ML_SEC);
+        registerReceiverTime = (int) (date.getTime()/ TermoBroadCastReceiver.DIVISOR_ML_SEC);
     }
 
     @Override
@@ -63,7 +53,7 @@ public class WidgetUpdaterService extends Service {
         Timer timer = new Timer();
         timer.schedule(circleWidgetUpdater, DELAY_FIRST_TIME, update_time);
 
-        if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Started");
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "WidgetUpdaterService Started");
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -71,35 +61,35 @@ public class WidgetUpdaterService extends Service {
         //   Restart TermoBroadCastReceiver to get new temperature
         public void run() {
             registerTermoBroadCastReceiver();
-            if (isDebug) Log.d(LOG_TAG , "CircleWidgetUpdater Started");
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "CircleWidgetUpdater Started");
         }
     }
 
     private void registerTermoBroadCastReceiver(){
-        int curTime = (int) (date.getTime() / DIVISOR_ML_SEC);
+        int curTime = (int) (date.getTime() / TermoBroadCastReceiver.DIVISOR_ML_SEC);
         int secondsFromLastRegisterReceiver = curTime - registerReceiverTime;
 
         if( TermoBroadCastReceiver.isReady()
                 || (secondsFromLastRegisterReceiver > WAIT_FOR_RECEIVER_READY )){
             //  screen on to receive properly temperature
-            setScreenOn(this, isTimeAddToDB());
+            setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
 
             //  register receiver to catch ACTION_BATTERY_CHANGED
             registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
             registerReceiverTime = curTime;
             TermoBroadCastReceiver.setReady(false);
 
-            if (isDebug) Log.d(LOG_TAG , "TermoBroadCastReceiver registered");
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "TermoBroadCastReceiver registered");
         }
     }
 
     private void unregisterTermoBroadCastReceiver(){
         try {
             unregisterReceiver(termoBroadCastReceiver);
-            if (isDebug) Log.d(LOG_TAG , "termoBroadCastReceiver unregistered");
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "termoBroadCastReceiver unregistered");
         }
         catch (Exception e){
-            if (isDebug) Log.w(LOG_TAG , "termoBroadCastReceiver is not registered yet");
+            if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG , "termoBroadCastReceiver is not registered yet");
         }
     }
 
@@ -125,7 +115,7 @@ public class WidgetUpdaterService extends Service {
         if ((wakeLock != null) && (!wakeLock.isHeld()))
         {
             wakeLock.acquire();
-            if (isDebug) Log.d(LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "acquire FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
         }
     }
 
@@ -133,7 +123,7 @@ public class WidgetUpdaterService extends Service {
         if ((wakeLock != null) && (wakeLock.isHeld()))
         {
             wakeLock.release();
-            if (isDebug) Log.d(LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
+            if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "release FULL_WAKE_LOCK | ACQUIRE_CAUSES_WAKEUP");
         }
     }
 
@@ -142,13 +132,13 @@ public class WidgetUpdaterService extends Service {
         circleWidgetUpdater.cancel();
         unregisterTermoBroadCastReceiver();
 
-        if (isDebug) Log.d(LOG_TAG , "WidgetUpdaterService Destroy");
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "WidgetUpdaterService Destroy");
         super.onDestroy();
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (isDebug) Log.d(LOG_TAG , "ScreenStateService onBind");
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "ScreenStateService onBind");
         return null;
     }
 

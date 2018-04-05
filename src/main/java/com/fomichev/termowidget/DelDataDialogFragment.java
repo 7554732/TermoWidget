@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -8,8 +8,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
+import com.example.termowidget.R;
 
 public class DelDataDialogFragment extends DialogFragment {
     @Override
@@ -57,7 +56,7 @@ public class DelDataDialogFragment extends DialogFragment {
             mListener = (DelDataDialogListener) context;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, log exception
-            if (isDebug) Log.e(LOG_TAG ,"Doesn't implement DelDataDialogListener");
+            if (TermoWidget.isDebug) Log.e(TermoWidget.LOG_TAG ,"Doesn't implement DelDataDialogListener");
         }
     }
 }

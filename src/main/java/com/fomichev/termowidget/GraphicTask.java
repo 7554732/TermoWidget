@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 
 import android.database.Cursor;
@@ -13,11 +13,10 @@ import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.termowidget.R;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
 
 public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
 
@@ -89,7 +88,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         Cursor cursor = db.query(DBHelper.TERMO_TABLE_NAME, null, selection, null, null, null, null);
 
         int numberOfData = cursor.getCount();
-        if (isDebug) Log.d(LOG_TAG , "Amount of  data from interval in DB: " + numberOfData );
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "Amount of  data from interval in DB: " + numberOfData );
 
         // create CanvasObject to convert object coordinates
         CanvasObject graphic = new CanvasObject(canvas, BITMAP_ORIGIN_WIDTH, BITMAP_ORIGIN_HEIGHT);
@@ -137,7 +136,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
         //  calculate  Width of rectangle
         float rectWidth = graphicWidth / numberOfRect;
 
-        if (isDebug) Log.d(LOG_TAG , "numberOfRect: " + numberOfRect
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "numberOfRect: " + numberOfRect
                 + " dataPerRect: " + dataPerRect
                 + " rectWidth: " + rectWidth);
 
@@ -192,7 +191,7 @@ public class GraphicTask extends AsyncTask<Object, Void, Bitmap> {
                     canvas.drawTextOnPath(timeString, timePath, 0, 0, textPaint);
                 }
 
-                if (isDebug) Log.d(LOG_TAG , "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
+                if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "RectF: " + rectf.toString()+" dataCounter " + dataCounter );
             }
         }
 

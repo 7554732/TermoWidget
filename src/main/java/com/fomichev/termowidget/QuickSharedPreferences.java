@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,10 +8,8 @@ import android.util.Log;
 import java.io.IOException;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
-import static com.example.termowidget.WidgetUpdaterService.MIN_UPDATE_TIME;
+import static com.fomichev.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
+import static com.fomichev.termowidget.WidgetUpdaterService.MIN_UPDATE_TIME;
 
 public class QuickSharedPreferences {
 
@@ -105,7 +103,7 @@ public class QuickSharedPreferences {
             try {
                 calibrationTemperature = loadPreferences(sharedPreferences, CALIBRATE_PREFERENCES_KEY, 0);
             } catch (IOException e) {
-                if (isDebug) Log.w(LOG_TAG, e.toString());
+                if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG, e.toString());
                 calibrationTemperature = 0;
             }
         }
@@ -117,7 +115,7 @@ public class QuickSharedPreferences {
             try {
                 updateTime = loadPreferences(sharedPreferences, UPDATE_TIME_PREFERENCES_KEY,  MIN_UPDATE_TIME);
             } catch (IOException e) {
-                if (isDebug) Log.w(LOG_TAG, e.toString());
+                if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG, e.toString());
                 updateTime = MIN_UPDATE_TIME;
             }
         }
@@ -129,7 +127,7 @@ public class QuickSharedPreferences {
             try {
                 is_status_bar = loadPreferences(sharedPreferences, STATUS_BAR_PREFERENCES_KEY, false);
             } catch (IOException e) {
-                if (isDebug) Log.w(LOG_TAG , e.toString());
+                if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG , e.toString());
                 is_status_bar = false;
             }
         }
@@ -141,7 +139,7 @@ public class QuickSharedPreferences {
             try {
                 is_blinking = loadPreferences(sharedPreferences, BLINKING_PREFERENCES_KEY, true);
             } catch (IOException e) {
-                if (isDebug) Log.w(LOG_TAG, e.toString());
+                if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG, e.toString());
                 is_blinking = true;
             }
         }
@@ -153,7 +151,7 @@ public class QuickSharedPreferences {
             try {
                 is_graphic = loadPreferences(sharedPreferences, GRAPHIC_PREFERENCES_KEY, true);
             } catch (IOException e) {
-                if (isDebug) Log.w(LOG_TAG , e.toString());
+                if (TermoWidget.isDebug) Log.w(TermoWidget.LOG_TAG , e.toString());
                 is_graphic = true;
             }
         }

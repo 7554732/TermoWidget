@@ -1,12 +1,9 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
 
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -29,7 +26,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 + ID_TERMO_ROW_NAME + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + DATE_TERMO_ROW_NAME + " INTEGER,"
                 + TEMPERATURE_TERMO_ROW_NAME + " INTEGER" + ");");
-        if (isDebug) Log.d(LOG_TAG , "database created");
+        if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "database created");
     }
 
     @Override

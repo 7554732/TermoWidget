@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -9,8 +9,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import java.util.Timer;
-import java.util.TimerTask;
+import com.example.termowidget.R;
 
 //  Widget for Android displays the temperature of the battery
 

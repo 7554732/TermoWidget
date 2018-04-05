@@ -1,10 +1,10 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import static com.example.termowidget.WidgetUpdaterService.wakeLock;
+import static com.fomichev.termowidget.WidgetUpdaterService.wakeLock;
 
 public class ScreenStateReceiver extends BroadcastReceiver {
 

@@ -1,4 +1,4 @@
-package com.example.termowidget;
+package com.fomichev.termowidget;
 
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +23,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.termowidget.R;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -30,10 +32,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 
-import static com.example.termowidget.GraphicTask.timeToString;
-import static com.example.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
-import static com.example.termowidget.TermoWidget.LOG_TAG;
-import static com.example.termowidget.TermoWidget.isDebug;
+import static com.fomichev.termowidget.GraphicTask.timeToString;
+import static com.fomichev.termowidget.TermoBroadCastReceiver.DIVISOR_ML_SEC;
+import static com.fomichev.termowidget.TermoWidget.LOG_TAG;
+import static com.fomichev.termowidget.TermoWidget.isDebug;
 
 public class ConfigActivity extends FragmentActivity implements DelDataDialogFragment.DelDataDialogListener{
 

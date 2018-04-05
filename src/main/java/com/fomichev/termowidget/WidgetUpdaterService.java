@@ -33,7 +33,7 @@ public class WidgetUpdaterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        acquireWakelock(this);
         //  initialize SharedPreferences
         quickSharedPreferences = new QuickSharedPreferences(this);
 
@@ -72,7 +72,7 @@ public class WidgetUpdaterService extends Service {
         if( TermoBroadCastReceiver.isReady()
                 || (secondsFromLastRegisterReceiver > WAIT_FOR_RECEIVER_READY )){
             //  screen on to receive properly temperature
-            setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
+//            setScreenOn(this, TermoBroadCastReceiver.isTimeAddToDB());
 
             //  register receiver to catch ACTION_BATTERY_CHANGED
             registerReceiver(termoBroadCastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
@@ -109,7 +109,8 @@ public class WidgetUpdaterService extends Service {
             powerManager = (PowerManager) context.getSystemService(POWER_SERVICE);
         }
         if(wakeLock == null){
-            wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
+//            wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "setScreenOn");
         }
 
         if ((wakeLock != null) && (!wakeLock.isHeld()))
@@ -131,7 +132,7 @@ public class WidgetUpdaterService extends Service {
     public void onDestroy() {
         circleWidgetUpdater.cancel();
         unregisterTermoBroadCastReceiver();
-
+        releaseWakelock();
         if (TermoWidget.isDebug) Log.d(TermoWidget.LOG_TAG , "WidgetUpdaterService Destroy");
         super.onDestroy();
     }

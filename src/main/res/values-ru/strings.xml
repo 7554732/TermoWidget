@@ -1,4 +1,8 @@
 <resources>
+    <string name="app_name">TermoWidget</string>
+    <string name="widget_name">Termo Widget</string>
+    <string name="degree">°</string>
+    <string name="temperature">T</string>
     <string name="status_bar_info">Показывать температуру в статус-баре</string>
     <string name="is_blinking">Мерцание</string>
     <string name="is_graphic">Показывать температурный график \n(батарея разряжается быстрее)</string>

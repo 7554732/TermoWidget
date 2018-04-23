@@ -6,3 +6,4 @@ Widget for Android displays the temperature of the battery
 
 Installation:
 - Download application [here on github](https://github.com/7554732/TermoWidget/tree/master/downloads/) 
+- Download application [on Google Play store](https://play.google.com/store/apps/details?id=com.fomichev.termowidget) 
